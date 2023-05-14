@@ -1,0 +1,6 @@
+[0/1] Re-running CMake...
+-- Project is not inside a git repository, or git repository has no commits; will not use 'git describe' to determine PROJECT_VER.
+-- Building ESP-IDF components for target esp32
+-- Configuring incomplete, errors occurred!
+FAILED: build.ninja 
+/opt/homebrew/Cellar/cmake/3.26.3/bin/cmake --regenerate-during-build -S/Users/brendancoffman/esp/lock -B/Users/brendancoffman/esp/lock/build

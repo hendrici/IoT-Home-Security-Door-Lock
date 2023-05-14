@@ -1,0 +1,21 @@
+{
+	"folders": [
+		{
+			"path": ".."
+		}
+	],
+	"settings": {
+		"terminal.integrated.shell.osx": "/bin/zsh",
+		"terminal.integrated.shellArgs.osx": [
+			"-c",
+			"source /Users/brendancoffman/esp/esp-idf/export.sh; zsh"
+		],
+		"cSpell.words": [
+			"vtask"
+		],
+		"files.associations": {
+			"mqtt_client.h": "c",
+			"esp_wifi.h": "c"
+		}
+	}
+}

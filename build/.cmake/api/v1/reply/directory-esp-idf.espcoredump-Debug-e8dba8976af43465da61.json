@@ -1,0 +1,14 @@
+{
+	"backtraceGraph" : 
+	{
+		"commands" : [],
+		"files" : [],
+		"nodes" : []
+	},
+	"installers" : [],
+	"paths" : 
+	{
+		"build" : "esp-idf/espcoredump",
+		"source" : "/Users/brendancoffman/esp/esp-idf/components/espcoredump"
+	}
+}

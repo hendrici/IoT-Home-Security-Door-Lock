@@ -1,0 +1,9 @@
+CMake Error at /Users/brendancoffman/esp/esp-idf/tools/cmake/project.cmake:266 (message):
+  Directory specified in EXTRA_COMPONENT_DIRS doesn't exist:
+  /Users/brendancoffman/esp/esp-idf/components/esp32
+Call Stack (most recent call first):
+  /Users/brendancoffman/esp/esp-idf/tools/cmake/project.cmake:350 (__project_init)
+  CMakeLists.txt:8 (project)
+
+
+ninja: error: rebuilding 'build.ninja': subcommand failed
