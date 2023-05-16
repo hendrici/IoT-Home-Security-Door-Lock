@@ -1,4 +1,0 @@
-[0/1] Re-running CMake...
--- Configuring incomplete, errors occurred!
-FAILED: build.ninja 
-/opt/homebrew/Cellar/cmake/3.26.3/bin/cmake --regenerate-during-build -S/Users/brendancoffman/esp/lock -B/Users/brendancoffman/esp/lock/build
