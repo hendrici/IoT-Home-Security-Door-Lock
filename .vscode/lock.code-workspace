@@ -11,11 +11,15 @@
 			"source /Users/brendancoffman/esp/esp-idf/export.sh; zsh"
 		],
 		"cSpell.words": [
+			"LOGD",
+			"LOGI",
 			"vtask"
 		],
 		"files.associations": {
 			"mqtt_client.h": "c",
-			"esp_wifi.h": "c"
+			"esp_wifi.h": "c",
+			"esp_log.h": "c",
+			"esp_flash.h": "c"
 		}
 	}
 }

@@ -6,7 +6,8 @@
                 "${workspaceFolder}/**",
                 "${workspaceFolder}/esp-idf/components/newlib/platform_include",
                 "/Users/brendancoffman/esp/esp-idf/**",
-                "/Users/brendancoffman/esp/esp-idf/components/newlib/platform_include"
+                "/Users/brendancoffman/esp/esp-idf/components/newlib/platform_include",
+                "/Users/brendancoffman/esp/esp-idf/examples/common_components/protocol_examples_common",
             ],
             "defines": [],
             "macFrameworkPath": [

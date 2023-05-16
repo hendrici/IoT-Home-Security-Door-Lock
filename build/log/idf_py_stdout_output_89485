@@ -1,0 +1,56 @@
+[0/1] Re-running CMake...
+-- The C compiler identification is GNU 12.2.0
+-- The CXX compiler identification is GNU 12.2.0
+-- Detecting C compiler ABI info
+-- Detecting C compiler ABI info - done
+-- Check for working C compiler: /Users/brendancoffman/.espressif/tools/xtensa-esp32-elf/esp-12.2.0_20230208/xtensa-esp32-elf/bin/xtensa-esp32-elf-gcc - skipped
+-- Detecting C compile features
+-- Detecting C compile features - done
+-- Detecting CXX compiler ABI info
+-- Detecting CXX compiler ABI info - done
+-- Check for working CXX compiler: /Users/brendancoffman/.espressif/tools/xtensa-esp32-elf/esp-12.2.0_20230208/xtensa-esp32-elf/bin/xtensa-esp32-elf-g++ - skipped
+-- Detecting CXX compile features
+-- Detecting CXX compile features - done
+-- Building ESP-IDF components for target esp32
+-- Project sdkconfig file /Users/brendancoffman/esp/lock/sdkconfig
+-- Compiler supported targets: xtensa-esp32-elf
+
+-- App "lock" version: 30f997e-dirty
+-- Adding linker script /Users/brendancoffman/esp/lock/build/esp-idf/esp_system/ld/memory.ld
+-- Adding linker script /Users/brendancoffman/esp/esp-idf/components/esp_system/ld/esp32/sections.ld.in
+-- Adding linker script /Users/brendancoffman/esp/esp-idf/components/esp_rom/esp32/ld/esp32.rom.ld
+-- Adding linker script /Users/brendancoffman/esp/esp-idf/components/esp_rom/esp32/ld/esp32.rom.api.ld
+-- Adding linker script /Users/brendancoffman/esp/esp-idf/components/esp_rom/esp32/ld/esp32.rom.libgcc.ld
+-- Adding linker script /Users/brendancoffman/esp/esp-idf/components/esp_rom/esp32/ld/esp32.rom.newlib-data.ld
+-- Adding linker script /Users/brendancoffman/esp/esp-idf/components/esp_rom/esp32/ld/esp32.rom.syscalls.ld
+-- Adding linker script /Users/brendancoffman/esp/esp-idf/components/esp_rom/esp32/ld/esp32.rom.newlib-funcs.ld
+-- Adding linker script /Users/brendancoffman/esp/esp-idf/components/soc/esp32/ld/esp32.peripherals.ld
+-- Components: app_trace app_update bootloader bootloader_support bt cmock console cxx driver efuse esp-tls esp_adc esp_app_format esp_coex esp_common esp_eth esp_event esp_gdbstub esp_hid esp_http_client esp_http_server esp_https_ota esp_https_server esp_hw_support esp_lcd esp_local_ctrl esp_mm esp_netif esp_netif_stack esp_partition esp_phy esp_pm esp_psram esp_ringbuf esp_rom esp_system esp_timer esp_wifi espcoredump esptool_py fatfs freertos hal heap http_parser idf_test ieee802154 json log lwip main mbedtls mqtt newlib nvs_flash openthread partition_table perfmon protobuf-c protocol_examples_common protocomm pthread sdmmc soc spi_flash spiffs tcp_transport ulp unity usb vfs wear_levelling wifi_provisioning wpa_supplicant xtensa
+-- Component paths: /Users/brendancoffman/esp/esp-idf/components/app_trace /Users/brendancoffman/esp/esp-idf/components/app_update /Users/brendancoffman/esp/esp-idf/components/bootloader /Users/brendancoffman/esp/esp-idf/components/bootloader_support /Users/brendancoffman/esp/esp-idf/components/bt /Users/brendancoffman/esp/esp-idf/components/cmock /Users/brendancoffman/esp/esp-idf/components/console /Users/brendancoffman/esp/esp-idf/components/cxx /Users/brendancoffman/esp/esp-idf/components/driver /Users/brendancoffman/esp/esp-idf/components/efuse /Users/brendancoffman/esp/esp-idf/components/esp-tls /Users/brendancoffman/esp/esp-idf/components/esp_adc /Users/brendancoffman/esp/esp-idf/components/esp_app_format /Users/brendancoffman/esp/esp-idf/components/esp_coex /Users/brendancoffman/esp/esp-idf/components/esp_common /Users/brendancoffman/esp/esp-idf/components/esp_eth /Users/brendancoffman/esp/esp-idf/components/esp_event /Users/brendancoffman/esp/esp-idf/components/esp_gdbstub /Users/brendancoffman/esp/esp-idf/components/esp_hid /Users/brendancoffman/esp/esp-idf/components/esp_http_client /Users/brendancoffman/esp/esp-idf/components/esp_http_server /Users/brendancoffman/esp/esp-idf/components/esp_https_ota /Users/brendancoffman/esp/esp-idf/components/esp_https_server /Users/brendancoffman/esp/esp-idf/components/esp_hw_support /Users/brendancoffman/esp/esp-idf/components/esp_lcd /Users/brendancoffman/esp/esp-idf/components/esp_local_ctrl /Users/brendancoffman/esp/esp-idf/components/esp_mm /Users/brendancoffman/esp/esp-idf/components/esp_netif /Users/brendancoffman/esp/esp-idf/components/esp_netif_stack /Users/brendancoffman/esp/esp-idf/components/esp_partition /Users/brendancoffman/esp/esp-idf/components/esp_phy /Users/brendancoffman/esp/esp-idf/components/esp_pm /Users/brendancoffman/esp/esp-idf/components/esp_psram /Users/brendancoffman/esp/esp-idf/components/esp_ringbuf /Users/brendancoffman/esp/esp-idf/components/esp_rom /Users/brendancoffman/esp/esp-idf/components/esp_system /Users/brendancoffman/esp/esp-idf/components/esp_timer /Users/brendancoffman/esp/esp-idf/components/esp_wifi /Users/brendancoffman/esp/esp-idf/components/espcoredump /Users/brendancoffman/esp/esp-idf/components/esptool_py /Users/brendancoffman/esp/esp-idf/components/fatfs /Users/brendancoffman/esp/esp-idf/components/freertos /Users/brendancoffman/esp/esp-idf/components/hal /Users/brendancoffman/esp/esp-idf/components/heap /Users/brendancoffman/esp/esp-idf/components/http_parser /Users/brendancoffman/esp/esp-idf/components/idf_test /Users/brendancoffman/esp/esp-idf/components/ieee802154 /Users/brendancoffman/esp/esp-idf/components/json /Users/brendancoffman/esp/esp-idf/components/log /Users/brendancoffman/esp/esp-idf/components/lwip /Users/brendancoffman/esp/lock/main /Users/brendancoffman/esp/esp-idf/components/mbedtls /Users/brendancoffman/esp/esp-idf/components/mqtt /Users/brendancoffman/esp/esp-idf/components/newlib /Users/brendancoffman/esp/esp-idf/components/nvs_flash /Users/brendancoffman/esp/esp-idf/components/openthread /Users/brendancoffman/esp/esp-idf/components/partition_table /Users/brendancoffman/esp/esp-idf/components/perfmon /Users/brendancoffman/esp/esp-idf/components/protobuf-c /Users/brendancoffman/esp/esp-idf/examples/common_components/protocol_examples_common /Users/brendancoffman/esp/esp-idf/components/protocomm /Users/brendancoffman/esp/esp-idf/components/pthread /Users/brendancoffman/esp/esp-idf/components/sdmmc /Users/brendancoffman/esp/esp-idf/components/soc /Users/brendancoffman/esp/esp-idf/components/spi_flash /Users/brendancoffman/esp/esp-idf/components/spiffs /Users/brendancoffman/esp/esp-idf/components/tcp_transport /Users/brendancoffman/esp/esp-idf/components/ulp /Users/brendancoffman/esp/esp-idf/components/unity /Users/brendancoffman/esp/esp-idf/components/usb /Users/brendancoffman/esp/esp-idf/components/vfs /Users/brendancoffman/esp/esp-idf/components/wear_levelling /Users/brendancoffman/esp/esp-idf/components/wifi_provisioning /Users/brendancoffman/esp/esp-idf/components/wpa_supplicant /Users/brendancoffman/esp/esp-idf/components/xtensa
+-- Configuring done (2.6s)
+-- Generating done (0.3s)
+-- Build files have been written to: /Users/brendancoffman/esp/lock/build
+[1/9] Performing build step for 'bootloader'
+[1/1] cd /Users/brendancoffman/esp/lock/build/bootloader/esp-idf/esptool_py && /Users/brendancoffman/.espressif/python_env/idf5.2_py3.9_env/bin/python /Users/brendancoffman/esp/esp-idf/components/partition_table/check_sizes.py --offset 0x8000 bootloader 0x1000 /Users/brendancoffman/esp/lock/build/bootloader/bootloader.bin
+Bootloader binary size 0x6850 bytes. 0x7b0 bytes (7%) free.
+[2/9] No install step for 'bootloader'
+[3/9] Completed 'bootloader'
+[4/9] Building C object esp-idf/main/CMakeFiles/__idf_main.dir/hello_world_main.c.obj
+/Users/brendancoffman/esp/lock/main/hello_world_main.c: In function 'mqtt_event_handler':
+/Users/brendancoffman/esp/lock/main/hello_world_main.c:69:9: warning: unused variable 'msg_id' [-Wunused-variable]
+   69 |     int msg_id;
+      |         ^~~~~~
+/Users/brendancoffman/esp/lock/main/hello_world_main.c:68:30: warning: unused variable 'client' [-Wunused-variable]
+   68 |     esp_mqtt_client_handle_t client = event->client;
+      |                              ^~~~~~
+[5/9] Linking C static library esp-idf/main/libmain.a
+[6/9] Generating ld/sections.ld
+[7/9] Linking CXX executable lock.elf
+[8/9] Generating binary image from built executable
+esptool.py v4.5.1
+Creating esp32 image...
+Merged 25 ELF sections
+Successfully created esp32 image.
+Generated /Users/brendancoffman/esp/lock/build/lock.bin
+[9/9] cd /Users/brendancoffman/esp/lock/build/esp-idf/esptool_py && /Users/brendancoffman/.espressif/python_env/idf5.2_py3.9_env/bin/python /Users/brendancoffman/esp/esp-idf/components/partition_table/check_sizes.py --offset 0x8000 partition --type app /Users/brendancoffman/esp/lock/build/partition_table/partition-table.bin /Users/brendancoffman/esp/lock/build/lock.bin
+lock.bin binary size 0xd5c20 bytes. Smallest app partition is 0x100000 bytes. 0x2a3e0 bytes (17%) free.
