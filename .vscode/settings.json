@@ -4,7 +4,7 @@
     "idf.openOcdConfigs": [
         "board/esp32-wrover-kit-3.3v.cfg"
     ],
-    "idf.port": "/dev/cu.usbserial-0001",
     "C_Cpp.intelliSenseEngine": "Tag Parser",
-    "idf.flashType": "UART"
+    "idf.flashType": "UART",
+    "idf.portWin": "COM3"
 }

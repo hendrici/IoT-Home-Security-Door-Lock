@@ -1,24 +1,15 @@
 {
     "configurations": [
         {
-            "name": "Mac",
+            "name": "Windows",
             "includePath": [
                 "${workspaceFolder}/**",
-                "${workspaceFolder}/esp-idf/components/newlib/platform_include",
-                "/Users/brendancoffman/esp/esp-idf/**",
-                "/Users/brendancoffman/esp/esp-idf/components/newlib/platform_include",
-                "/Users/brendancoffman/esp/esp-idf/examples/common_components/protocol_examples_common",
+                "C:/Espressif/frameworks/esp-idf-v5.0.2/components/newlib/platform_include",
+                "C:/Espressif/frameworks/esp-idf-v5.0.2/**",
+                "C:/Espressif/frameworks/esp-idf-v5.0.2/examples/common_components/protocol_examples_common"
             ],
-            "defines": [],
-            "macFrameworkPath": [
-                "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks"
-            ],
-            "compilerPath": "/usr/bin/clang",
-            "cStandard": "c17",
-            "cppStandard": "c++17",
-            "intelliSenseMode": "macos-clang-arm64",
-            "compileCommands": "${workspaceFolder}/build/compile_commands.json",
-            "configurationProvider": "ms-vscode.cmake-tools"
+            "compilerPath": "C:\\Espressif\\tools\\xtensa-esp32-elf\\esp-2022r1-11.2.0\\xtensa-esp32-elf\\bin\\xtensa-esp32-elf-gcc.exe",
+            "limitSymbolsToIncludedHeaders": false
         }
     ],
     "version": 4

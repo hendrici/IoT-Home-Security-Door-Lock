@@ -5,15 +5,10 @@
 		}
 	],
 	"settings": {
-		"terminal.integrated.shell.osx": "/bin/zsh",
-		"terminal.integrated.shellArgs.osx": [
-			"-c",
-			"source /Users/brendancoffman/esp/esp-idf/export.sh; zsh"
-		],
-		"cSpell.words": [
-			"LOGD",
-			"LOGI",
-			"vtask"
+		"terminal.integrated.shell.windows": "cmd.exe",
+		"terminal.integrated.shellArgs.windows": [
+			"-k",
+			"C:/Espressif/frameworks/esp-idf-v5.0.2/export.sh"
 		],
 		"files.associations": {
 			"mqtt_client.h": "c",
