@@ -174,6 +174,6 @@ void app_main(void)
      */
     ESP_ERROR_CHECK(example_connect());
 
-    mqtt_app_start();
+    // mqtt_app_start();
     xTaskCreate(&led_blink,"LED_BLINK",1024,NULL,5,NULL);
 }
