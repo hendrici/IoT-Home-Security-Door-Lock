@@ -11,6 +11,7 @@
 #include "protocol_examples_common.h"
 #include "esp_chip_info.h"
 #include "esp_flash.h"
+#include "driver/ledc.h"
 
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
@@ -25,6 +26,13 @@
 #include "mqtt_client.h"
 
 #define LED_PIN 2
+#define SERVO_PIN 4
+
+#define PWM_CHANNEL     LEDC_CHANNEL_0
+#define LOCK_FREQUENCY 50
+#define UNLOCK_DUTY_CYCLE_US 1000
+#define LOCK_DUTY_CYCLE_US 2000
+#define PWM_RESOLUTION  LEDC_TIMER_10_BIT
 
 #define CONFIG_BROKER_URL "mqtt://test.mosquitto.org/"
 
@@ -32,14 +40,22 @@ static const char *TAG = "MQTT_EXAMPLE";
 
 esp_mqtt_client_handle_t mqtt_client;
 
+
+
+void lockBolt(void);
+
+void unlockBolt(void);
+
 void led_blink(void *pvParams) {
     esp_rom_gpio_pad_select_gpio(LED_PIN);
     gpio_set_direction (LED_PIN,GPIO_MODE_OUTPUT);
     while (1) { 
         gpio_set_level(LED_PIN,0);
-        vTaskDelay(1000/portTICK_PERIOD_MS);
+        unlockBolt();
+        vTaskDelay(2000/portTICK_PERIOD_MS);
+        lockBolt();
         gpio_set_level(LED_PIN,1);
-        vTaskDelay(1000/portTICK_PERIOD_MS);    
+        vTaskDelay(2000/portTICK_PERIOD_MS);    
     }
 }
 
@@ -50,6 +66,43 @@ static void log_error_if_nonzero(const char *message, int error_code)
         ESP_LOGE(TAG, "Last error %s: 0x%x", message, error_code);
     }
 }
+
+void lockBolt(void){
+    
+    ledc_set_duty(LEDC_HIGH_SPEED_MODE, PWM_CHANNEL, (1 << PWM_RESOLUTION) * UNLOCK_DUTY_CYCLE_US / 20000);
+    ledc_update_duty(LEDC_HIGH_SPEED_MODE, PWM_CHANNEL);
+    ESP_LOGI(TAG, "Locked");
+
+}
+
+void unlockBolt(void){
+    ledc_set_duty(LEDC_HIGH_SPEED_MODE, PWM_CHANNEL, (1 << PWM_RESOLUTION) * UNLOCK_DUTY_CYCLE_US / 10000);
+    ledc_update_duty(LEDC_HIGH_SPEED_MODE, PWM_CHANNEL);
+    ESP_LOGI(TAG, "Unlocked");
+}
+
+void lockInit(void){
+     // Configure the PWM channel
+    ledc_timer_config_t ledc_timer = {
+        .duty_resolution = PWM_RESOLUTION,
+        .freq_hz = LOCK_FREQUENCY,
+        .speed_mode = LEDC_HIGH_SPEED_MODE,
+        .timer_num = LEDC_TIMER_0
+    };
+    ledc_timer_config(&ledc_timer);
+
+    ledc_channel_config_t ledc_channel = {
+        .channel = PWM_CHANNEL,
+        .duty = 0,
+        .gpio_num = SERVO_PIN,
+        .speed_mode = LEDC_HIGH_SPEED_MODE,
+        .timer_sel = LEDC_TIMER_0
+    };
+    ledc_channel_config(&ledc_channel);
+
+    lockBolt();
+}
+
 
 /*
  * @brief Event handler registered to receive MQTT events
@@ -174,6 +227,8 @@ void app_main(void)
      */
     ESP_ERROR_CHECK(example_connect());
 
-    // mqtt_app_start();
-    xTaskCreate(&led_blink,"LED_BLINK",1024,NULL,5,NULL);
+    mqtt_app_start();
+    lockInit();
+    xTaskCreate(&led_blink,"LED_BLINK",2048,NULL,5,NULL);
+    
 }
