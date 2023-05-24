@@ -33,9 +33,8 @@
 #define LEDC_OUTPUT_IO          (4) // Define the output GPIO
 #define LEDC_CHANNEL            LEDC_CHANNEL_0
 #define LEDC_DUTY_RES           LEDC_TIMER_13_BIT // Set duty resolution to 13 bits
-#define LEDC_DUTY_LOCKED        (((1 << 13) - 1) * .075) //1.5ms ~Center
-#define LEDC_DUTY_UNLOCKED      (((1 << 13) - 1) * .0625) //~45 degrees off center
-
+#define LEDC_DUTY_LOCKED        (((1 << 13) - 1) * .14) //1.5ms ~Center
+#define LEDC_DUTY_UNLOCKED      (((1 << 13) - 1) * .07) //~45 degrees off center
 #define LEDC_FREQUENCY          (50)
 
 #define CONFIG_BROKER_URL "mqtt://test.mosquitto.org/"
@@ -56,10 +55,10 @@ void led_blink(void *pvParams) {
     while (1) { 
         gpio_set_level(LED_PIN,0);
         unlockBolt();
-        vTaskDelay(2000/portTICK_PERIOD_MS);
+        vTaskDelay(4000/portTICK_PERIOD_MS);
         lockBolt();
         gpio_set_level(LED_PIN,1);
-        vTaskDelay(2000/portTICK_PERIOD_MS);    
+        vTaskDelay(4000/portTICK_PERIOD_MS);    
     }
 }
 
