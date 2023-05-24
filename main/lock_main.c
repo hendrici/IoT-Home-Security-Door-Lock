@@ -72,13 +72,13 @@ static void log_error_if_nonzero(const char *message, int error_code)
 }
 
 void lockBolt(void){
-    ESP_ERROR_CHECK(ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, LEDC_DUTY_\LOCKED));
-    ESP_ERROR_CHECK(ledc_update_duty(LEDC_MODE, LEDC_CHANNEL));
+    ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, LEDC_DUTY_LOCKED);
+    ledc_update_duty(LEDC_MODE, LEDC_CHANNEL);
 }
 
 void unlockBolt(void){
-    ESP_ERROR_CHECK(ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, LEDC_DUTY_UNLOCKED));
-    ESP_ERROR_CHECK(ledc_update_duty(LEDC_MODE, LEDC_CHANNEL));
+    ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, LEDC_DUTY_UNLOCKED);
+    ledc_update_duty(LEDC_MODE, LEDC_CHANNEL);
 }
 
 void lockInit(void){
@@ -226,8 +226,9 @@ void app_main(void)
     ESP_ERROR_CHECK(example_connect());
 
     mqtt_app_start();
-    lockInit();
+    
     */
+   lockInit();
     xTaskCreate(&led_blink,"LED_BLINK",2048,NULL,5,NULL);
     
 }
