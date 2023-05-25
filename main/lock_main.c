@@ -28,13 +28,20 @@
 #define LED_PIN 2
 #define SERVO_PIN 4
 
+#define LCD_Enable GPIO_NUM_22
+#define LCD_RS GPIO_NUM_23
+#define LCD_DB4 GPIO_NUM_32
+#define LCD_DB5 GPIO_NUM_33
+#define LCD_DB6 GPIO_NUM_34
+#define LCD_DB7 GPIO_NUM_35
+
 #define LEDC_TIMER              LEDC_TIMER_0
 #define LEDC_MODE               LEDC_LOW_SPEED_MODE
 #define LEDC_OUTPUT_IO          (4) // Define the output GPIO
 #define LEDC_CHANNEL            LEDC_CHANNEL_0
 #define LEDC_DUTY_RES           LEDC_TIMER_13_BIT // Set duty resolution to 13 bits
-#define LEDC_DUTY_LOCKED        (((1 << 13) - 1) * .075) //1.5ms ~Center
-#define LEDC_DUTY_UNLOCKED      (((1 << 13) - 1) * .0625) //~45 degrees off center
+#define LEDC_DUTY_LOCKED        (((1 << 13) - 1) * 0.14) //1.5ms ~Center
+#define LEDC_DUTY_UNLOCKED      (((1 << 13) - 1) * 0.07) //~45 degrees off center
 
 #define LEDC_FREQUENCY          (50)
 
@@ -43,8 +50,6 @@
 static const char *TAG = "MQTT_EXAMPLE";
 
 esp_mqtt_client_handle_t mqtt_client;
-
-
 
 void lockBolt(void);
 
@@ -102,6 +107,114 @@ void lockInit(void){
         .hpoint         = 0
     };
     ESP_ERROR_CHECK(ledc_channel_config(&ledc_channel));
+}
+
+/**
+ * @brief The initLCD function configures the ESP32 pins: 
+ * 22, 23, 32, 33, 34, and 35 as outputs and drives them low
+ * 
+ */
+void initLCD (void) {
+    
+    // Initialize LCD GPIOs as outputs
+    gpio_set_direction(LCD_DB4, GPIO_MODE_OUTPUT); 
+    gpio_set_direction(LCD_DB5, GPIO_MODE_OUTPUT);
+    gpio_set_direction(LCD_DB6, GPIO_MODE_OUTPUT);
+    gpio_set_direction(LCD_DB7, GPIO_MODE_OUTPUT); 
+    gpio_set_direction(LCD_RS, GPIO_MODE_OUTPUT);
+    gpio_set_direction(LCD_Enable, GPIO_MODE_OUTPUT);
+
+    // Drive LCD pins LOW
+    gpio_set_level(LCD_DB4, 0); 
+    gpio_set_level(LCD_DB5, 0); 
+    gpio_set_level(LCD_DB6, 0); 
+    gpio_set_level(LCD_DB7, 0); 
+    gpio_set_level(LCD_RS, 0); 
+    gpio_set_level(LCD_Enable, 0); 
+}
+
+/**
+ * @brief The pulseEnable 
+ * 
+ */
+void pulseEnable(void) {
+
+    gpio_set_level(LCD_Enable, 0); 
+    vTaskDelay(10/portTICK_PERIOD_MS);
+
+    gpio_set_level(LCD_Enable, 1);
+    vTaskDelay(10/portTICK_RATE_MICROSECONDS);
+
+    gpio_set_level(LCD_Enable, 0); 
+}
+
+void push_nibble(uint8_t var) { 
+
+    // Drive Pins Low
+    gpio_set_level(LCD_DB7, 0); 
+    gpio_set_level(LCD_DB7, 0);
+    gpio_set_level(LCD_DB7, 0); 
+    gpio_set_level(LCD_DB7, 0);
+
+    // Set Respective Pin 
+    gpio_set_level(LCD_DB7, nibble >> 3); 
+    gpio_set_level(LCD_DB7, (nibble >> 2) & 1); 
+    gpio_set_level(LCD_DB7, (nibble >> 1) & 1); 
+    gpio_set_level(LCD_DB7, nibble & 1); 
+
+    pulseEnable(); 
+}
+
+void push_byte(uint8_t var) {
+    push_nibble(var >> 4)
+    push_nibble(var & 0x0F)
+    vTaskDelay(100/portTICK_PERIOD_MS);
+}
+
+/**
+ * @brief 
+ * 
+ * @param var 
+ */
+void commandWrite(uint8_t var) {
+    gpio_set_level(LCD_RS, 0); 
+    vTaskDelay(2000/portTICK_PERIOD_MS);
+
+    push_byte(var); 
+}
+
+/**
+ * @brief 
+ * 
+ * @param var 
+ */
+void dataWrite(uint8_t var) {
+    gpio_set_level(LCD_RS, 1); 
+    vTaskDelay(2000/portTICK_PERIOD_MS);
+
+    push_byte(var); 
+}
+
+void initLCD {
+    vTaskDelay(100/portTICK_PERIOD_MS);
+
+    // reset 
+    commandWrite(3); 
+    vTaskDelay(100/portTICK_PERIOD_MS);
+
+    commandWrite(0x3); 
+    vTaskDelay(100/portTICK_PERIOD_MS);
+
+    commandWrite(0x3); 
+    vTaskDelay(2000/portTICK_PERIOD_MS);
+
+    commandWrite(2);
+    vTaskDelay(2/portTICK_PERIOD_MS);
+
+
+
+
+
 }
 
 
@@ -228,7 +341,7 @@ void app_main(void)
     mqtt_app_start();
     
     */
-   lockInit();
+    lockInit();
     xTaskCreate(&led_blink,"LED_BLINK",2048,NULL,5,NULL);
     
 }
