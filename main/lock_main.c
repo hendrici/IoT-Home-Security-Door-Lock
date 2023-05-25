@@ -68,7 +68,6 @@ void led_blink(void *pvParams) {
     }
 }
 
-
 static void log_error_if_nonzero(const char *message, int error_code)
 {
     if (error_code != 0) {
@@ -211,10 +210,6 @@ void initLCD {
     commandWrite(2);
     vTaskDelay(2/portTICK_PERIOD_MS);
 
-
-
-
-
 }
 
 
@@ -314,7 +309,6 @@ void printDeviceInfo(void){
     printf("Minimum free heap size: %" PRIu32 " bytes\n", esp_get_minimum_free_heap_size());
 }
 
-
 void app_main(void) 
 {
     printDeviceInfo();
@@ -342,6 +336,6 @@ void app_main(void)
     
     */
     lockInit();
-    xTaskCreate(&led_blink,"LED_BLINK",2048,NULL,5,NULL);
+    // xTaskCreate(&led_blink,"LED_BLINK",2048,NULL,5,NULL);
     
 }
