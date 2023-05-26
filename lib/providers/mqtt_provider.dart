@@ -6,7 +6,7 @@ import 'package:mqtt_client/mqtt_server_client.dart';
 final mqttProvider = Provider((_) => MqttProvider());
 
 class MqttProvider {
-  final client = MqttServerClient('test.mosquitto.org', 'testingLock');
+  final client = MqttServerClient('test.mosquitto.org', 'testingLock3');
   bool clientConnected = false;
 
   Future<void> connect() async {
