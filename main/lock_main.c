@@ -28,13 +28,6 @@
 #define LED_PIN 2
 #define SERVO_PIN 4
 
-#define LCD_Enable GPIO_NUM_22
-#define LCD_RS GPIO_NUM_23
-#define LCD_DB4 GPIO_NUM_32
-#define LCD_DB5 GPIO_NUM_33
-#define LCD_DB6 GPIO_NUM_34
-#define LCD_DB7 GPIO_NUM_35
-
 #define LEDC_TIMER              LEDC_TIMER_0
 #define LEDC_MODE               LEDC_LOW_SPEED_MODE
 #define LEDC_OUTPUT_IO          (4) // Define the output GPIO
@@ -45,6 +38,16 @@
 
 #define LEDC_FREQUENCY          (50)
 
+#define LCD_Enable  GPIO_NUM_22
+#define LCD_RS      GPIO_NUM_23
+#define LCD_DB4     GPIO_NUM_32
+#define LCD_DB5     GPIO_NUM_33
+#define LCD_DB6     GPIO_NUM_25
+#define LCD_DB7     GPIO_NUM_26
+
+#define MAX_STRING_SIZE 40
+#define NUMBER_OF_STRING 4
+
 #define CONFIG_BROKER_URL "mqtt://test.mosquitto.org/"
 
 static const char *TAG = "MQTT_EXAMPLE";
@@ -54,6 +57,21 @@ esp_mqtt_client_handle_t mqtt_client;
 void lockBolt(void);
 
 void unlockBolt(void);
+
+// Function Prototypes for LCD 
+void initLCDpins(void);
+void pulseEnable(void); 
+void push_nibble(uint8_t var); 
+void push_byte(uint8_t var);
+void commandWrite(uint8_t var);
+void dataWrite(uint8_t var);
+void initLCD(void); 
+void printToLCD(void); 
+
+char arr[NUMBER_OF_STRING][MAX_STRING_SIZE] = {     // 2 dimensional array to store strings
+
+      "Hector", "Garcia", "EGR", "226"
+};
 
 void led_blink(void *pvParams) {
     esp_rom_gpio_pad_select_gpio(LED_PIN);
@@ -113,7 +131,7 @@ void lockInit(void){
  * 22, 23, 32, 33, 34, and 35 as outputs and drives them low
  * 
  */
-void initLCD (void) {
+void initLCDpins (void) {
     
     // Initialize LCD GPIOs as outputs
     gpio_set_direction(LCD_DB4, GPIO_MODE_OUTPUT); 
@@ -130,6 +148,8 @@ void initLCD (void) {
     gpio_set_level(LCD_DB7, 0); 
     gpio_set_level(LCD_RS, 0); 
     gpio_set_level(LCD_Enable, 0); 
+
+    initLCD();
 }
 
 /**
@@ -139,35 +159,45 @@ void initLCD (void) {
 void pulseEnable(void) {
 
     gpio_set_level(LCD_Enable, 0); 
-    vTaskDelay(10/portTICK_PERIOD_MS);
+    vTaskDelay(1/portTICK_PERIOD_MS);
 
     gpio_set_level(LCD_Enable, 1);
-    vTaskDelay(10/portTICK_RATE_MICROSECONDS);
+    vTaskDelay(1/portTICK_PERIOD_MS);
 
     gpio_set_level(LCD_Enable, 0); 
 }
 
+/**
+ * @brief 
+ * 
+ * @param var 
+ */
 void push_nibble(uint8_t var) { 
 
-    // Drive Pins Low
+    // Drive Pins Low (clear pins)
     gpio_set_level(LCD_DB7, 0); 
-    gpio_set_level(LCD_DB7, 0);
-    gpio_set_level(LCD_DB7, 0); 
-    gpio_set_level(LCD_DB7, 0);
+    gpio_set_level(LCD_DB6, 0);
+    gpio_set_level(LCD_DB5, 0); 
+    gpio_set_level(LCD_DB4, 0);
 
     // Set Respective Pin 
-    gpio_set_level(LCD_DB7, nibble >> 3); 
-    gpio_set_level(LCD_DB7, (nibble >> 2) & 1); 
-    gpio_set_level(LCD_DB7, (nibble >> 1) & 1); 
-    gpio_set_level(LCD_DB7, nibble & 1); 
+    gpio_set_level(LCD_DB7, var >> 3); 
+    gpio_set_level(LCD_DB6, (var >> 2) & 1); 
+    gpio_set_level(LCD_DB5, (var >> 1) & 1); 
+    gpio_set_level(LCD_DB4, var & 1); 
 
     pulseEnable(); 
 }
 
+/**
+ * @brief 
+ * 
+ * @param var 
+ */
 void push_byte(uint8_t var) {
-    push_nibble(var >> 4)
-    push_nibble(var & 0x0F)
-    vTaskDelay(100/portTICK_PERIOD_MS);
+    push_nibble(var >> 4);
+    push_nibble(var & 0x0F);
+    vTaskDelay(1/portTICK_PERIOD_MS);
 }
 
 /**
@@ -177,7 +207,7 @@ void push_byte(uint8_t var) {
  */
 void commandWrite(uint8_t var) {
     gpio_set_level(LCD_RS, 0); 
-    vTaskDelay(2000/portTICK_PERIOD_MS);
+    vTaskDelay(1/portTICK_PERIOD_MS);
 
     push_byte(var); 
 }
@@ -189,29 +219,97 @@ void commandWrite(uint8_t var) {
  */
 void dataWrite(uint8_t var) {
     gpio_set_level(LCD_RS, 1); 
-    vTaskDelay(2000/portTICK_PERIOD_MS);
+    vTaskDelay(1/portTICK_PERIOD_MS);
 
     push_byte(var); 
 }
 
-void initLCD {
-    vTaskDelay(100/portTICK_PERIOD_MS);
+/**
+ * @brief 
+ * 
+ */
+void initLCD (void) {
+
+    vTaskDelay(1/portTICK_PERIOD_MS);
 
     // reset 
-    commandWrite(3); 
-    vTaskDelay(100/portTICK_PERIOD_MS);
+    commandWrite(3);        // Special Function 
+    vTaskDelay(10/portTICK_PERIOD_MS);
 
-    commandWrite(0x3); 
-    vTaskDelay(100/portTICK_PERIOD_MS);
+    commandWrite(0x3);         // Special Function 
+    vTaskDelay(1/portTICK_PERIOD_MS);
 
-    commandWrite(0x3); 
-    vTaskDelay(2000/portTICK_PERIOD_MS);
+    commandWrite(0x3);        // Special Function  
+    vTaskDelay(10/portTICK_PERIOD_MS);
 
-    commandWrite(2);
-    vTaskDelay(2/portTICK_PERIOD_MS);
+    commandWrite(2);        // Sets the LCD to use 4-bits rather than 8 bits
+    vTaskDelay(1/portTICK_PERIOD_MS);
 
+    commandWrite(2);        // Sets the LCD to use 4-bits rather than 8 bits
+    vTaskDelay(1/portTICK_PERIOD_MS);
+
+    // Initialization Sequence
+    commandWrite(8); 
+    vTaskDelay(1/portTICK_PERIOD_MS);
+
+    commandWrite(0x0F);     // Display on and cursor blinking 
+    vTaskDelay(1/portTICK_PERIOD_MS);
+
+    commandWrite(1); 
+    vTaskDelay(1/portTICK_PERIOD_MS);       // Clear
+
+    commandWrite(6);        // Entry Mode
+    vTaskDelay(1/portTICK_PERIOD_MS);
 }
 
+void printToLCD(void) {
+
+    int count = 0;
+
+        int i = 0;
+        int j = 0;
+        
+        commandWrite(1);
+        vTaskDelay(20/portTICK_PERIOD_MS);
+ 
+        commandWrite(0x85);        // Center of first line
+        vTaskDelay(20/portTICK_PERIOD_MS);
+
+        for ( i = 0 ; i < NUMBER_OF_STRING ; i++) {
+
+
+            for (j = 0 ; j < (strlen(arr[i])) ; j++) { // changed i to j
+
+                dataWrite(arr[i][j]);
+                vTaskDelay(20/portTICK_PERIOD_MS);
+
+            }
+
+            count++;     // increment count so the next text can be written on the next line
+
+
+            switch (count) {
+
+            case 1 :
+                commandWrite(0xC5);        // Center of second line
+        vTaskDelay(20/portTICK_PERIOD_MS);
+
+                break;
+
+            case 2 :
+                commandWrite(0x96);        // Center of third line
+        vTaskDelay(20/portTICK_PERIOD_MS);
+
+                break;
+            case 3 :
+                commandWrite(0xD6);        // Center of third line
+        vTaskDelay(20/portTICK_PERIOD_MS);
+
+                break;
+            }
+
+        }
+}
 
 /*
  * @brief Event handler registered to receive MQTT events
@@ -336,6 +434,14 @@ void app_main(void)
     
     */
     lockInit();
+    initLCDpins(); 
+    printToLCD();
+
+    // vTaskDelay(10/portTICK_PERIOD_MS);
+
+    // commandWrite(0x80);
+     
+
     // xTaskCreate(&led_blink,"LED_BLINK",2048,NULL,5,NULL);
     
 }
