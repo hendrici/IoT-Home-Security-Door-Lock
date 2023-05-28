@@ -4,6 +4,7 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <string.h>
+#include <stdbool.h>
 #include <driver/gpio.h>
 #include "esp_wifi.h"
 #include "esp_system.h"
@@ -27,9 +28,11 @@
 #include "esp_log.h"
 #include "mqtt_client.h"
 
-/************************** PIN MACRO DEFINITIONS *******************************/
-#define LED_PIN                 GPIO_NUM_2
-#define SERVO_PIN               GPIO_NUM_4
+#define LOCK_STATUS_TOPIC  "brendan/lockStatus/"
+#define PIN_OUTPUT_TOPIC   "brendan/pinEntry/"
+
+#define LED_PIN 2
+#define SERVO_PIN 4
 
 #define LCD_Enable              GPIO_NUM_22
 #define LCD_RS                  GPIO_NUM_23
@@ -52,7 +55,15 @@
 
 static const char *TAG = "MQTT_EXAMPLE";
 
-esp_mqtt_client_handle_t mqtt_client;
+esp_mqtt_client_config_t mqtt_cfg = {
+    .broker.address.uri = CONFIG_BROKER_URL,
+};
+
+esp_mqtt_client_handle_t client;
+
+
+int pinSize = 6;
+int pin[6] = {1,2,3,4,5,6};
 
 /************************** FUNCTION PROTOTYPES *******************************/
 void ledBlink(void *pvParams);
@@ -106,16 +117,29 @@ void app_main(void) {
     // xTaskCreate(&led_blink,"LED_BLINK",2048,NULL,5,NULL);
 }
 
+bool checkPin(int *entry, int size){
+    if(size == pinSize){
+        for(int i = 0; i < pinSize; i++){
+            printf("%d : %d \n", entry[i], pin[i]);
+            if(entry[i] != pin[i]){
+                return false;
+            }
+        }
+        return true;
+    }
+    return false;
+}
+
 void ledBlink(void *pvParams) {
     esp_rom_gpio_pad_select_gpio(LED_PIN);
     gpio_set_direction (LED_PIN,GPIO_MODE_OUTPUT);
     while (1) { 
         gpio_set_level(LED_PIN,0);
-        unlockBolt();
-        vTaskDelay(2000/portTICK_PERIOD_MS);
-        lockBolt();
+        // unlockBolt();
+        vTaskDelay(4000/portTICK_PERIOD_MS);
+        // lockBolt();
         gpio_set_level(LED_PIN,1);
-        vTaskDelay(2000/portTICK_PERIOD_MS);    
+        vTaskDelay(4000/portTICK_PERIOD_MS);    
     }
 }
 
@@ -150,14 +174,16 @@ void printDeviceInfo(void)  {
     printf("Minimum free heap size: %" PRIu32 " bytes\n", esp_get_minimum_free_heap_size());
 }
 
-void lockBolt(void) {
+void lockBolt(void){
     ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, LEDC_DUTY_LOCKED);
     ledc_update_duty(LEDC_MODE, LEDC_CHANNEL);
+    esp_mqtt_client_publish(client, LOCK_STATUS_TOPIC ,"locked",0,1,0);
 }
 
-void unlockBolt(void)   {
+void unlockBolt(void){
     ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, LEDC_DUTY_UNLOCKED);
     ledc_update_duty(LEDC_MODE, LEDC_CHANNEL);
+    esp_mqtt_client_publish(client, LOCK_STATUS_TOPIC ,"unlocked",0,1,0);
 }
 
 void lockInit(void) {
@@ -318,6 +344,26 @@ void writeEnterPinScreen(void)  {
 
 }
 
+void mqtt_pin_to_int_array(uint32_t len, char *input){
+
+    int enteredPin[len];
+    uint32_t i=0;
+    for(i=0; i<len; i++){
+        enteredPin[i] = input[i] - '0';
+    }
+    for(i=0; i < len; i++){
+        printf("%d ",enteredPin[i]);
+    }
+    printf("\n");
+
+    if(checkPin(enteredPin, len)){
+        unlockBolt();
+    }
+    else{
+        lockBolt();
+    }
+}
+
 /*
  * @brief Event handler registered to receive MQTT events
  *
@@ -357,6 +403,7 @@ static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_
         ESP_LOGI(TAG, "MQTT_EVENT_DATA");
         printf("TOPIC=%.*s\r\n", event->topic_len, event->topic);
         printf("DATA=%.*s\r\n", event->data_len, event->data);
+        mqtt_pin_to_int_array(event->data_len, event->data);
         break;
 
     case MQTT_EVENT_ERROR:
@@ -375,14 +422,13 @@ static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_
     }
 }
 
-static void mqtt_app_start(void)    {
-    esp_mqtt_client_config_t mqtt_cfg = {
-        .broker.address.uri = CONFIG_BROKER_URL,
-    };
-    esp_mqtt_client_handle_t client = esp_mqtt_client_init(&mqtt_cfg);
+static void mqtt_app_start(void)
+{
+    client = esp_mqtt_client_init(&mqtt_cfg);
     /* The last argument may be used to pass data to the event handler, in this example mqtt_event_handler */
     esp_mqtt_client_register_event(client, ESP_EVENT_ANY_ID, mqtt_event_handler, NULL);
     esp_mqtt_client_start(client);
 
-    esp_mqtt_client_publish(client,"brendan/testing/open","test",0,0,0);
+    esp_mqtt_client_publish(client, LOCK_STATUS_TOPIC ,"locked",0,0,0);
+    esp_mqtt_client_subscribe(client, PIN_OUTPUT_TOPIC, 1);
 }
