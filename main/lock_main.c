@@ -103,7 +103,6 @@ void app_main(void) {
     ESP_ERROR_CHECK(nvs_flash_init());
     ESP_ERROR_CHECK(esp_netif_init());
     ESP_ERROR_CHECK(esp_event_loop_create_default());
-
     ESP_ERROR_CHECK(example_connect());
 
     mqtt_app_start();
@@ -131,6 +130,7 @@ bool checkPin(int *entry, int size){
 }
 
 void ledBlink(void *pvParams) {
+>>>>>>> Isaiah-LCD
     esp_rom_gpio_pad_select_gpio(LED_PIN);
     gpio_set_direction (LED_PIN,GPIO_MODE_OUTPUT);
     while (1) { 
@@ -276,7 +276,7 @@ void pulseEnable(void) {
 
 void push_nibble(uint8_t var) { 
 
-    // Drive Pins Low
+    // Drive Pins Low (clear pins)
     gpio_set_level(LCD_DB7, 0); 
     gpio_set_level(LCD_DB6, 0);
     gpio_set_level(LCD_DB5, 0); 
@@ -323,6 +323,55 @@ void writeLockScreen(bool isRemote) {
     } else  {
 
     }
+}
+
+void printToLCD(void) {
+
+    int count = 0;
+
+        int i = 0;
+        int j = 0;
+        
+        commandWrite(1);
+        vTaskDelay(20/portTICK_PERIOD_MS);
+ 
+        commandWrite(0x85);        // Center of first line
+        vTaskDelay(20/portTICK_PERIOD_MS);
+
+        for ( i = 0 ; i < NUMBER_OF_STRING ; i++) {
+
+
+            for (j = 0 ; j < (strlen(arr[i])) ; j++) { // changed i to j
+
+                dataWrite(arr[i][j]);
+                vTaskDelay(20/portTICK_PERIOD_MS);
+
+            }
+
+            count++;     // increment count so the next text can be written on the next line
+
+
+            switch (count) {
+
+            case 1 :
+                commandWrite(0xC5);        // Center of second line
+        vTaskDelay(20/portTICK_PERIOD_MS);
+
+                break;
+
+            case 2 :
+                commandWrite(0x96);        // Center of third line
+        vTaskDelay(20/portTICK_PERIOD_MS);
+
+                break;
+            case 3 :
+                commandWrite(0xD6);        // Center of third line
+        vTaskDelay(20/portTICK_PERIOD_MS);
+
+                break;
+            }
+
+        }
 }
 
 void writeEnterPinScreen(void)  {
@@ -428,7 +477,6 @@ static void mqtt_app_start(void)
     /* The last argument may be used to pass data to the event handler, in this example mqtt_event_handler */
     esp_mqtt_client_register_event(client, ESP_EVENT_ANY_ID, mqtt_event_handler, NULL);
     esp_mqtt_client_start(client);
-
     esp_mqtt_client_publish(client, LOCK_STATUS_TOPIC ,"locked",0,0,0);
     esp_mqtt_client_subscribe(client, PIN_OUTPUT_TOPIC, 1);
 }
