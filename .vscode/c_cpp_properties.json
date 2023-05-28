@@ -4,9 +4,10 @@
             "name": "Windows",
             "includePath": [
                 "${workspaceFolder}/**",
-                "C:/Espressif/frameworks/esp-idf-v5.0.2/components/newlib/platform_include",
-                "C:/Espressif/frameworks/esp-idf-v5.0.2/**",
-                "C:/Espressif/frameworks/esp-idf-v5.0.2/examples/common_components/protocol_examples_common"
+                "/Users/brendancoffman/esp/esp-idf/components/newlib/platform_include",
+                "/Users/brendancoffman/esp/esp-idf/**",
+                "/Users/brendancoffman/esp/esp-idf/examples/common_components/protocol_examples_common",
+                "/Users/brendancoffman/esp/esp-idf/components/driver/**"
             ],
             "compilerPath": "C:\\Espressif\\tools\\xtensa-esp32-elf\\esp-2022r1-11.2.0\\xtensa-esp32-elf\\bin\\xtensa-esp32-elf-gcc.exe",
             "limitSymbolsToIncludedHeaders": false

@@ -11,6 +11,7 @@
 #include "protocol_examples_common.h"
 #include "esp_chip_info.h"
 #include "esp_flash.h"
+#include "driver/ledc.h"
 
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
@@ -25,6 +26,16 @@
 #include "mqtt_client.h"
 
 #define LED_PIN 2
+#define SERVO_PIN 4
+
+#define LEDC_TIMER              LEDC_TIMER_0
+#define LEDC_MODE               LEDC_LOW_SPEED_MODE
+#define LEDC_OUTPUT_IO          (4) // Define the output GPIO
+#define LEDC_CHANNEL            LEDC_CHANNEL_0
+#define LEDC_DUTY_RES           LEDC_TIMER_13_BIT // Set duty resolution to 13 bits
+#define LEDC_DUTY_LOCKED        (((1 << 13) - 1) * .14) //1.5ms ~Center
+#define LEDC_DUTY_UNLOCKED      (((1 << 13) - 1) * .07) //~45 degrees off center
+#define LEDC_FREQUENCY          (50)
 
 #define CONFIG_BROKER_URL "mqtt://test.mosquitto.org/"
 
@@ -32,14 +43,22 @@ static const char *TAG = "MQTT_EXAMPLE";
 
 esp_mqtt_client_handle_t mqtt_client;
 
+
+
+void lockBolt(void);
+
+void unlockBolt(void);
+
 void led_blink(void *pvParams) {
     esp_rom_gpio_pad_select_gpio(LED_PIN);
     gpio_set_direction (LED_PIN,GPIO_MODE_OUTPUT);
     while (1) { 
         gpio_set_level(LED_PIN,0);
-        vTaskDelay(1000/portTICK_PERIOD_MS);
+        unlockBolt();
+        vTaskDelay(4000/portTICK_PERIOD_MS);
+        lockBolt();
         gpio_set_level(LED_PIN,1);
-        vTaskDelay(1000/portTICK_PERIOD_MS);    
+        vTaskDelay(4000/portTICK_PERIOD_MS);    
     }
 }
 
@@ -50,6 +69,40 @@ static void log_error_if_nonzero(const char *message, int error_code)
         ESP_LOGE(TAG, "Last error %s: 0x%x", message, error_code);
     }
 }
+
+void lockBolt(void){
+    ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, LEDC_DUTY_LOCKED);
+    ledc_update_duty(LEDC_MODE, LEDC_CHANNEL);
+}
+
+void unlockBolt(void){
+    ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, LEDC_DUTY_UNLOCKED);
+    ledc_update_duty(LEDC_MODE, LEDC_CHANNEL);
+}
+
+void lockInit(void){
+    ledc_timer_config_t ledc_timer = {
+        .speed_mode       = LEDC_MODE,
+        .timer_num        = LEDC_TIMER,
+        .duty_resolution  = LEDC_DUTY_RES,
+        .freq_hz          = LEDC_FREQUENCY,  // Set output frequency at 50 Hz
+        .clk_cfg          = LEDC_AUTO_CLK
+    };
+    ESP_ERROR_CHECK(ledc_timer_config(&ledc_timer));
+
+    // Prepare and then apply the LEDC PWM channel configuration
+    ledc_channel_config_t ledc_channel = {
+        .speed_mode     = LEDC_MODE,
+        .channel        = LEDC_CHANNEL,
+        .timer_sel      = LEDC_TIMER,
+        .intr_type      = LEDC_INTR_DISABLE,
+        .gpio_num       = LEDC_OUTPUT_IO,
+        .duty           = 0, // Set duty to 0%
+        .hpoint         = 0
+    };
+    ESP_ERROR_CHECK(ledc_channel_config(&ledc_channel));
+}
+
 
 /*
  * @brief Event handler registered to receive MQTT events
@@ -164,16 +217,17 @@ void app_main(void)
     esp_log_level_set("TRANSPORT", ESP_LOG_VERBOSE);
     esp_log_level_set("outbox", ESP_LOG_VERBOSE);
 
+    /* WIFI FUNCTIONALITY
     ESP_ERROR_CHECK(nvs_flash_init());
     ESP_ERROR_CHECK(esp_netif_init());
     ESP_ERROR_CHECK(esp_event_loop_create_default());
 
-    /* This helper function configures Wi-Fi or Ethernet, as selected in menuconfig.
-     * Read "Establishing Wi-Fi or Ethernet Connection" section in
-     * examples/protocols/README.md for more information about this function.
-     */
     ESP_ERROR_CHECK(example_connect());
 
-    // mqtt_app_start();
-    xTaskCreate(&led_blink,"LED_BLINK",1024,NULL,5,NULL);
+    mqtt_app_start();
+    
+    */
+   lockInit();
+    xTaskCreate(&led_blink,"LED_BLINK",2048,NULL,5,NULL);
+    
 }
