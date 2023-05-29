@@ -106,21 +106,17 @@ void app_main(void) {
     esp_log_level_set("TRANSPORT", ESP_LOG_VERBOSE);
     esp_log_level_set("outbox", ESP_LOG_VERBOSE);
 
-    /* WIFI FUNCTIONALITY
     ESP_ERROR_CHECK(nvs_flash_init());
     ESP_ERROR_CHECK(esp_netif_init());
     ESP_ERROR_CHECK(esp_event_loop_create_default());
     ESP_ERROR_CHECK(example_connect());
 
     mqtt_app_start();
-    
-    */
 
     initLCD();
     writeEnterPinScreen();
     
-    // lockInit();
-    // xTaskCreate(&led_blink,"LED_BLINK",2048,NULL,5,NULL);
+    lockInit();
 }
 
 bool checkPin(int *entry, int size){
@@ -180,13 +176,13 @@ void printDeviceInfo(void)  {
     printf("Minimum free heap size: %" PRIu32 " bytes\n", esp_get_minimum_free_heap_size());
 }
 
-void lockBolt(void){
+void lockBolt(void) {
     ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, LEDC_DUTY_LOCKED);
     ledc_update_duty(LEDC_MODE, LEDC_CHANNEL);
     esp_mqtt_client_publish(client, LOCK_STATUS_TOPIC ,"locked",0,1,0);
 }
 
-void unlockBolt(void){
+void unlockBolt(void)   {
     ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, LEDC_DUTY_UNLOCKED);
     ledc_update_duty(LEDC_MODE, LEDC_CHANNEL);
     esp_mqtt_client_publish(client, LOCK_STATUS_TOPIC ,"unlocked",0,1,0);
