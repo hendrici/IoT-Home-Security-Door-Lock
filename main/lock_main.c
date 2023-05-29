@@ -48,8 +48,10 @@
 #define LEDC_DUTY_RES           LEDC_TIMER_13_BIT // Set duty resolution to 13 bits
 #define LEDC_DUTY_LOCKED        (((1 << 13) - 1) * 0.14) //1.5ms ~Center
 #define LEDC_DUTY_UNLOCKED      (((1 << 13) - 1) * 0.07) //~45 degrees off center
-
 #define LEDC_FREQUENCY          (50)
+
+#define MAX_STRING_SIZE 40
+#define NUMBER_OF_STRING 4
 
 #define CONFIG_BROKER_URL       "mqtt://test.mosquitto.org/"
 
@@ -61,6 +63,10 @@ esp_mqtt_client_config_t mqtt_cfg = {
 
 esp_mqtt_client_handle_t client;
 
+char arr[NUMBER_OF_STRING][MAX_STRING_SIZE] = {     // 2 dimensional array to store strings
+
+      "Hector", "Garcia", "EGR", "226"
+};
 
 int pinSize = 6;
 int pin[6] = {1,2,3,4,5,6};
@@ -80,6 +86,7 @@ void push_byte(uint8_t var);
 void commandWrite(uint8_t var);
 void dataWrite(uint8_t var);
 void writeEnterPinScreen(void);
+void printToLCD(void);
 static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_t event_id, void *event_data);
 static void mqtt_app_start(void);
 
@@ -130,7 +137,6 @@ bool checkPin(int *entry, int size){
 }
 
 void ledBlink(void *pvParams) {
->>>>>>> Isaiah-LCD
     esp_rom_gpio_pad_select_gpio(LED_PIN);
     gpio_set_direction (LED_PIN,GPIO_MODE_OUTPUT);
     while (1) { 
