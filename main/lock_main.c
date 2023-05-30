@@ -24,7 +24,34 @@
 #include "esp_log.h"
 #include "mqtt_client.h"
 
+// Define the keypad pins
+#define KEYPAD_DEBOUNCING 100   ///< time in ms
+#define KEYPAD_STACKSIZE  5
 #define LED_PIN 2
+#define ROWS 4
+#define COLS 3
+#define ROW_1_PIN GPIO_NUM_12
+#define ROW_2_PIN 13
+#define ROW_3_PIN GPIO_NUM_14
+#define ROW_4_PIN GPIO_NUM_15
+#define COL_1_PIN GPIO_NUM_21
+#define COL_2_PIN GPIO_NUM_22
+#define COL_3_PIN GPIO_NUM_23
+
+
+// Define the keypad matrix
+char keys[ROWS][COLS] = {
+  {'1', '2', '3'},
+  {'4', '5', '6'},
+  {'7', '8', '9'},
+  {'*', '0', '#'}
+};
+
+// Variables for tracking key press state
+volatile bool keyWasPressed = false;
+volatile char lastKey;
+
+
 
 #define CONFIG_BROKER_URL "mqtt://test.mosquitto.org/"
 
@@ -147,33 +174,150 @@ void printDeviceInfo(void){
     printf("Minimum free heap size: %" PRIu32 " bytes\n", esp_get_minimum_free_heap_size());
 }
 
+uint8_t Keypad_Read(void){
 
-void app_main(void) 
-{
-    printDeviceInfo();
+    uint8_t col, row = 0;
+    int num = 0;
 
-    ESP_LOGI(TAG, "[APP] Startup..");
-    ESP_LOGI(TAG, "[APP] Free memory: %" PRIu32 " bytes", esp_get_free_heap_size());
-    ESP_LOGI(TAG, "[APP] IDF version: %s", esp_get_idf_version());
+    for(col = 0; col<3; col++){
+        // Set all cols to input
+        gpio_set_direction(COL_1_PIN, GPIO_MODE_INPUT);
+        gpio_set_direction(COL_2_PIN, GPIO_MODE_INPUT);
+        gpio_set_direction(COL_3_PIN, GPIO_MODE_INPUT);
 
-    esp_log_level_set("*", ESP_LOG_INFO);
-    esp_log_level_set("mqtt_client", ESP_LOG_VERBOSE);
-    esp_log_level_set("MQTT_EXAMPLE", ESP_LOG_VERBOSE);
-    esp_log_level_set("TRANSPORT_BASE", ESP_LOG_VERBOSE);
-    esp_log_level_set("esp-tls", ESP_LOG_VERBOSE);
-    esp_log_level_set("TRANSPORT", ESP_LOG_VERBOSE);
-    esp_log_level_set("outbox", ESP_LOG_VERBOSE);
+        vTaskDelay(500/portTICK_PERIOD_MS);
+        // set current col to output
+        gpio_set_direction(COL_1_PIN + col, GPIO_MODE_OUTPUT);
+        gpio_set_level(COL_1_PIN + col, 0);  
 
-    ESP_ERROR_CHECK(nvs_flash_init());
-    ESP_ERROR_CHECK(esp_netif_init());
-    ESP_ERROR_CHECK(esp_event_loop_create_default());
 
-    /* This helper function configures Wi-Fi or Ethernet, as selected in menuconfig.
-     * Read "Establishing Wi-Fi or Ethernet Connection" section in
-     * examples/protocols/README.md for more information about this function.
-     */
-    ESP_ERROR_CHECK(example_connect());
+        // vTaskDelay(pdMS_TO_TICKS(10));
+        vTaskDelay(500/portTICK_PERIOD_MS);
 
-    // mqtt_app_start();
-    xTaskCreate(&led_blink,"LED_BLINK",1024,NULL,5,NULL);
+
+        if(gpio_get_level(ROW_1_PIN) == 0)
+            row = 1;
+        else if(gpio_get_level(ROW_2_PIN)  == 0)
+            row = 2;
+        else if(gpio_get_level(ROW_3_PIN) == 0)
+            row = 3;
+        else if(gpio_get_level(ROW_4_PIN) == 0)
+            row = 4;
+
+        if(row != 0){//if one of the inputs is low then a key is pressed
+            break;
+        }
+    }
+
+    gpio_set_direction(COL_1_PIN, GPIO_MODE_INPUT);
+    gpio_set_direction(COL_2_PIN, GPIO_MODE_INPUT);
+    gpio_set_direction(COL_3_PIN, GPIO_MODE_INPUT);
+
+    if(col == 3){
+        return 0;
+    }
+
+    if(row == 1){//key in row 0
+        num = col + 1;
+    }
+
+    if(row == 2){//key in row 1
+       num = 3 + col + 1;
+    }
+
+    if(row == 3){//key in row 2
+        num = 6 + col + 1;
+    }
+
+    if(row == 4){//key in row 3
+        num = 9 + col + 1;
+    }
+
+    printf("Num: %d\n", num);
+    // if (num == 11) num = 0;
+    // else if( num == 10) return 10;
+    // else if( num == 12) return 0;
+    return 1;
 }
+
+
+void app_main(void) {
+    printf("Hello World\n");
+
+    gpio_set_direction(ROW_1_PIN, GPIO_MODE_INPUT);
+    gpio_set_direction(ROW_2_PIN, GPIO_MODE_INPUT);
+    gpio_set_direction(ROW_3_PIN, GPIO_MODE_INPUT);
+    gpio_set_direction(ROW_4_PIN, GPIO_MODE_INPUT);
+    gpio_pullup_en(ROW_1_PIN);
+    gpio_pullup_en(ROW_2_PIN);
+    gpio_pullup_en(ROW_3_PIN);
+    gpio_pullup_en(ROW_4_PIN);
+
+
+    gpio_set_direction(COL_1_PIN, GPIO_MODE_INPUT);
+    gpio_set_direction(COL_2_PIN, GPIO_MODE_INPUT);
+    gpio_set_direction(COL_3_PIN, GPIO_MODE_INPUT);
+
+    gpio_set_level(ROW_1_PIN, 1);
+    vTaskDelay(50/portTICK_PERIOD_MS);
+    gpio_set_level(ROW_2_PIN, 1);
+    vTaskDelay(50/portTICK_PERIOD_MS);
+    gpio_set_level(ROW_3_PIN, 1);
+    vTaskDelay(50/portTICK_PERIOD_MS);
+    gpio_set_level(ROW_4_PIN, 1);
+    vTaskDelay(50/portTICK_PERIOD_MS);
+    gpio_set_level(COL_1_PIN, 1);
+    vTaskDelay(50/portTICK_PERIOD_MS);
+    gpio_set_level(COL_2_PIN, 1);
+    vTaskDelay(50/portTICK_PERIOD_MS);
+    gpio_set_level(COL_3_PIN, 1);
+
+
+  printf("1\n");
+
+  while (1) {
+    Keypad_Read();
+
+    // if (keyWasPressed) {
+    //   // Print the last key pressed
+    //   printf("Key Pressed: %c\n", lastKey);
+
+    //   // Reset the flag
+    //   keyWasPressed = false;
+    // }
+
+    vTaskDelay(pdMS_TO_TICKS(1000));  // Adjust the delay as per your requirements
+  }
+}
+
+
+// void app_main(void) 
+// {
+//     printDeviceInfo();
+
+//     ESP_LOGI(TAG, "[APP] Startup..");
+//     ESP_LOGI(TAG, "[APP] Free memory: %" PRIu32 " bytes", esp_get_free_heap_size());
+//     ESP_LOGI(TAG, "[APP] IDF version: %s", esp_get_idf_version());
+
+//     esp_log_level_set("*", ESP_LOG_INFO);
+//     esp_log_level_set("mqtt_client", ESP_LOG_VERBOSE);
+//     esp_log_level_set("MQTT_EXAMPLE", ESP_LOG_VERBOSE);
+//     esp_log_level_set("TRANSPORT_BASE", ESP_LOG_VERBOSE);
+//     esp_log_level_set("esp-tls", ESP_LOG_VERBOSE);
+//     esp_log_level_set("TRANSPORT", ESP_LOG_VERBOSE);
+//     esp_log_level_set("outbox", ESP_LOG_VERBOSE);
+
+//     ESP_ERROR_CHECK(nvs_flash_init());
+//     ESP_ERROR_CHECK(esp_netif_init());
+//     ESP_ERROR_CHECK(esp_event_loop_create_default());
+
+//     /* This helper function configures Wi-Fi or Ethernet, as selected in menuconfig.
+//      * Read "Establishing Wi-Fi or Ethernet Connection" section in
+//      * examples/protocols/README.md for more information about this function.
+//      */
+//     ESP_ERROR_CHECK(example_connect());
+
+//     // mqtt_app_start();
+//     xTaskCreate(&led_blink,"LED_BLINK",1024,NULL,5,NULL);
+// }
+
