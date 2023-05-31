@@ -30,10 +30,10 @@
 #define LED_PIN 2
 #define ROWS 4
 #define COLS 3
-#define ROW_1_PIN GPIO_NUM_12
-#define ROW_2_PIN 13
-#define ROW_3_PIN GPIO_NUM_14
-#define ROW_4_PIN GPIO_NUM_15
+#define ROW_1_PIN GPIO_NUM_25
+#define ROW_2_PIN 26
+#define ROW_3_PIN GPIO_NUM_27
+#define ROW_4_PIN GPIO_NUM_18
 #define COL_1_PIN GPIO_NUM_21
 #define COL_2_PIN GPIO_NUM_22
 #define COL_3_PIN GPIO_NUM_23
@@ -195,14 +195,22 @@ uint8_t Keypad_Read(void){
         vTaskDelay(500/portTICK_PERIOD_MS);
 
 
-        if(gpio_get_level(ROW_1_PIN) == 0)
+        if(gpio_get_level(ROW_1_PIN) == 0){
+            //while(gpio_get_level(ROW_1_PIN) == 0);
             row = 1;
-        else if(gpio_get_level(ROW_2_PIN)  == 0)
+        }
+        else if(gpio_get_level(ROW_2_PIN) == 0){
+            //while(gpio_get_level(ROW_2_PIN) == 0);
             row = 2;
-        else if(gpio_get_level(ROW_3_PIN) == 0)
+        }
+        else if(gpio_get_level(ROW_3_PIN) == 0){
+            //while(gpio_get_level(ROW_3_PIN) == 0);
             row = 3;
-        else if(gpio_get_level(ROW_4_PIN) == 0)
+        }
+        else if(gpio_get_level(ROW_4_PIN) == 0){
+            //while(gpio_get_level(ROW_4_PIN) == 0);
             row = 4;
+        }
 
         if(row != 0){//if one of the inputs is low then a key is pressed
             break;
