@@ -25,32 +25,20 @@
 #include "mqtt_client.h"
 
 // Define the keypad pins
-#define KEYPAD_DEBOUNCING 100   ///< time in ms
-#define KEYPAD_STACKSIZE  5
 #define LED_PIN 2
 #define ROWS 4
 #define COLS 3
 #define ROW_1_PIN GPIO_NUM_25
-#define ROW_2_PIN 26
+#define ROW_2_PIN GPIO_NUM_26
 #define ROW_3_PIN GPIO_NUM_27
 #define ROW_4_PIN GPIO_NUM_18
 #define COL_1_PIN GPIO_NUM_21
 #define COL_2_PIN GPIO_NUM_22
 #define COL_3_PIN GPIO_NUM_23
 
-
-// Define the keypad matrix
-char keys[ROWS][COLS] = {
-  {'1', '2', '3'},
-  {'4', '5', '6'},
-  {'7', '8', '9'},
-  {'*', '0', '#'}
-};
-
 // Variables for tracking key press state
 volatile bool keyWasPressed = false;
 volatile char lastKey;
-
 
 
 #define CONFIG_BROKER_URL "mqtt://test.mosquitto.org/"
@@ -242,16 +230,10 @@ uint8_t Keypad_Read(void){
     }
 
     printf("Num: %d\n", num);
-    // if (num == 11) num = 0;
-    // else if( num == 10) return 10;
-    // else if( num == 12) return 0;
-    return 1;
+    return num;
 }
 
-
-void app_main(void) {
-    printf("Hello World\n");
-
+void initKeypad(){
     gpio_set_direction(ROW_1_PIN, GPIO_MODE_INPUT);
     gpio_set_direction(ROW_2_PIN, GPIO_MODE_INPUT);
     gpio_set_direction(ROW_3_PIN, GPIO_MODE_INPUT);
@@ -279,23 +261,20 @@ void app_main(void) {
     gpio_set_level(COL_2_PIN, 1);
     vTaskDelay(50/portTICK_PERIOD_MS);
     gpio_set_level(COL_3_PIN, 1);
+}
 
 
-  printf("1\n");
+void app_main(void) {
+    printf("Hello World\n");
 
-  while (1) {
-    Keypad_Read();
+    initKeypad();
 
-    // if (keyWasPressed) {
-    //   // Print the last key pressed
-    //   printf("Key Pressed: %c\n", lastKey);
 
-    //   // Reset the flag
-    //   keyWasPressed = false;
-    // }
+    while (1) {
+        Keypad_Read();
 
-    vTaskDelay(pdMS_TO_TICKS(1000));  // Adjust the delay as per your requirements
-  }
+        vTaskDelay(pdMS_TO_TICKS(1000));  // Adjust the delay as per your requirements
+    }
 }
 
 
