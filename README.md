@@ -7,8 +7,14 @@ The objective of the product is to provide convenience without sacrificing secur
 
 This project is an internet of things (IoT) deadbolt. Containing a LCD display, keypad, and mobile application for additional features. This will allow the user to enter the pin through the onboard keyboard or send the pin through wifi using Message Queuing Telemetry Transport (MQTT). Allowing the user to unlock the deadbolt from anywhere in the world along with entering the pin on the device. 
 
+
+## Current State
+https://github.com/CIS-350/lock/assets/107201610/2983bff3-1502-4459-af0b-d9deed3d7e73
+
+
 ## System Hardware Setup
 (add pictures)
+
 
 Hardware used:
 - [ESP32S Development Kit](https://www.amazon.com/dp/B09J95SMG7?psc=1&ref=ppx_yo2ov_dt_b_product_details)
