@@ -9,13 +9,10 @@ This project is an internet of things (IoT) deadbolt. Containing a LCD display, 
 
 
 ## Current State
-https://github.com/CIS-350/lock/assets/107201610/2983bff3-1502-4459-af0b-d9deed3d7e73
+https://github.com/CIS-350/lock/assets/107201610/6131cbc2-6563-4f6d-a5b9-eebca7f5f955
 
 
-## System Hardware Setup
-(add pictures)
-
-
+## System Hardware
 Hardware used:
 - [ESP32S Development Kit](https://www.amazon.com/dp/B09J95SMG7?psc=1&ref=ppx_yo2ov_dt_b_product_details)
 - [Adafruit 3x4 Matrix Keypad](https://www.amazon.com/dp/B00QSHPCO8?psc=1&ref=ppx_yo2ov_dt_b_product_details)

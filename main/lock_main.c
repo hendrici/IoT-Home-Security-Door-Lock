@@ -150,10 +150,11 @@ bool checkPin(int *entry, int size) {
 
 
 /**
- * @brief 
+ * @brief A function to log the error that the mqtt callback had if an
+ *        unexpected response is returned
  * 
- * @param message 
- * @param error_code
+ * @param message the message of what error it is
+ * @param error_code the error code of the mqtt error
  */
 static void logErrorIfNonzero(const char *message, int error_code)   {
     if (error_code != 0) {
@@ -321,7 +322,7 @@ void pulseEnable(void) {
  * 
  * @param var 4 bit number to be sent to the LCD
  */
-void push_nibble(uint8_t var) { 
+void push_nibble(uint8_t var) {
     // Drive Pins Low (clear pins)
     gpio_set_level(LCD_DB7, 0); 
     gpio_set_level(LCD_DB6, 0);
@@ -440,10 +441,13 @@ void printToLCD(void) {
 
 
 /**
- * @brief 
+ * @brief Takes the mqtt message and converts it into an array of integers
+ *        This number is then compared to the stored pin and the deadbolt
+ *        is locked/unlocked accordingly
  * 
- * @param len
- * @param input
+ * @param kLen The length of the string
+ * @param input A string array of the input pin written as characters and converted
+ *              to integers
  */
 void mqtt_pin_to_int_array(uint32_t kLen, char *input) {
     int enteredPin[kLen];
@@ -536,7 +540,9 @@ static void mqtt_event_handler(void *handler_args, esp_event_base_t base,
 
 
 /**
- * @brief
+ * @brief Establishes connection to the mqtt client and publishes locked since the
+ *        program starts with the deadbolt locked. Then subscribes to the topic the
+ *        mobile app is sending the pin to.
  */
 static void mqtt_app_start(void) {
     client = esp_mqtt_client_init(&mqtt_cfg);
