@@ -1,4 +1,4 @@
-/************************** INCLUDE STATEMENTS *******************************/
+/* --------------------------- Include Statements --------------------------- */
 #include <stdio.h>
 #include <stdbool.h>
 #include <stdint.h>
@@ -28,6 +28,7 @@
 #include "esp_log.h"
 #include "mqtt_client.h"
 
+/* ---------------------------- Macro Definitions --------------------------- */
 #define LOCK_STATUS_TOPIC  "brendan/lockStatus/"
 #define PIN_OUTPUT_TOPIC   "brendan/pinEntry/"
 
@@ -55,6 +56,7 @@
 
 #define CONFIG_BROKER_URL       "mqtt://test.mosquitto.org/"
 
+/* ---------------------------- Global Variables ---------------------------- */
 static const char *TAG = "MQTT_EXAMPLE";
 
 esp_mqtt_client_config_t mqtt_cfg = {
@@ -65,13 +67,13 @@ esp_mqtt_client_handle_t client;
 
 char arr[NUMBER_OF_STRING][MAX_STRING_SIZE] = {     // 2 dimensional array to store strings
 
-      "Hector", "Garcia", "EGR", "226"
+      "CIS 350", "Midterm Release", "", "Group 1"
 };
 
 int pinSize = 6;
 int pin[6] = {1,2,3,4,5,6};
 
-/************************** FUNCTION PROTOTYPES *******************************/
+/* --------------------------- Function Prototypes -------------------------- */
 void ledBlink(void *pvParams);
 static void logErrorIfNonzero(const char *message, int error_code);
 void printDeviceInfo(void);
@@ -90,7 +92,7 @@ void printToLCD(void);
 static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_t event_id, void *event_data);
 static void mqtt_app_start(void);
 
-/************************** FUNCTIONS *******************************/
+/* -------------------------------- Functions ------------------------------- */
 void app_main(void) {
     printDeviceInfo();
 
@@ -114,7 +116,7 @@ void app_main(void) {
     mqtt_app_start();
 
     initLCD();
-    writeEnterPinScreen();
+    printToLCD();
     
     lockInit();
 }
@@ -137,9 +139,7 @@ void ledBlink(void *pvParams) {
     gpio_set_direction (LED_PIN,GPIO_MODE_OUTPUT);
     while (1) { 
         gpio_set_level(LED_PIN,0);
-        // unlockBolt();
         vTaskDelay(4000/portTICK_PERIOD_MS);
-        // lockBolt();
         gpio_set_level(LED_PIN,1);
         vTaskDelay(4000/portTICK_PERIOD_MS);    
     }
@@ -248,7 +248,7 @@ void initSequenceLCD(void) {
     commandWrite(0x2);
     vTaskDelay(1/portTICK_PERIOD_MS);
 
-    // // 2 lines, 5x7 format
+    // 2 lines, 5x7 format
     // commandWrite(0x8);
     // vTaskDelay(1/portTICK_PERIOD_MS);
 
@@ -328,58 +328,41 @@ void writeLockScreen(bool isRemote) {
 }
 
 void printToLCD(void) {
+    int count = 1;
+    commandWrite(1);
+    vTaskDelay(20/portTICK_PERIOD_MS);
 
-    int count = 0;
-
-        int i = 0;
-        int j = 0;
-        
-        commandWrite(1);
-        vTaskDelay(20/portTICK_PERIOD_MS);
- 
-        commandWrite(0x85);        // Center of first line
-        vTaskDelay(20/portTICK_PERIOD_MS);
-
-        for ( i = 0 ; i < NUMBER_OF_STRING ; i++) {
-
-
-            for (j = 0 ; j < (strlen(arr[i])) ; j++) { // changed i to j
-
-                dataWrite(arr[i][j]);
-                vTaskDelay(20/portTICK_PERIOD_MS);
-
-            }
-
-            count++;     // increment count so the next text can be written on the next line
-
-
-            switch (count) {
-
+    for (int i = 0 ; i < NUMBER_OF_STRING ; i++) {
+        switch (count) {
             case 1 :
-                commandWrite(0xC5);        // Center of second line
-        vTaskDelay(20/portTICK_PERIOD_MS);
-
+                commandWrite(0x85);        // first line
                 break;
-
             case 2 :
-                commandWrite(0x96);        // Center of third line
-        vTaskDelay(20/portTICK_PERIOD_MS);
-
+                commandWrite(0xC1);        // second line
                 break;
             case 3 :
-                commandWrite(0xD6);        // Center of third line
-        vTaskDelay(20/portTICK_PERIOD_MS);
-
+                commandWrite(0x95);        // third line
                 break;
-            }
-
+            case 4 :
+                commandWrite(0xD5);        // fourth line
+                break;
         }
+
+        vTaskDelay(20/portTICK_PERIOD_MS);
+        count++;     // increment count so the next text can be written on the next line
+
+        for (int j = 0 ; j < (strlen(arr[i])) ; j++) { // changed i to j
+            dataWrite(arr[i][j]);
+            vTaskDelay(20/portTICK_PERIOD_MS);
+        }
+    }
 }
 
+[[deprecated("This function requires spaces in the literal string to be centered, use printToLCD() instead")]]
 void writeEnterPinScreen(void)  {
     uint8_t i;
-    char name[33] = "    Isaiah H.         EGR       ";         // message for line 1 & 3
-    char name2[33] = "   Triston G.         227       ";        // message for line 2 & 4
+    char name[33] = "";         // message for line 1 & 3
+    char name2[33] = "";        // message for line 2 & 4
 
     for(i = 0; i < 32; i++){        // prints message for line 1 & 3
         dataWrite(name[i]);
@@ -415,7 +398,7 @@ void mqtt_pin_to_int_array(uint32_t len, char *input){
     }
 }
 
-/*
+/**
  * @brief Event handler registered to receive MQTT events
  *
  *  This function is called by the MQTT client event loop.
