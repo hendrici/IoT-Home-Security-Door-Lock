@@ -2,4 +2,5 @@ build/
 .vscode/
 sdkconfig
 sdkconfig.old
+log.txt
 
