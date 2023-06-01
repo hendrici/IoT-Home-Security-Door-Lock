@@ -92,7 +92,12 @@ static void mqtt_event_handler(void *handler_args, esp_event_base_t base,
     int32_t event_id, void *event_data);
 static void mqtt_app_start(void);
 
-/* -------------------------------- Functions ------------------------------- */
+/* ------------------------------------------------------------------------ */
+
+
+/**
+ * @brief Main function for application
+ */
 void app_main(void) {
     printDeviceInfo();
 
@@ -118,10 +123,18 @@ void app_main(void) {
 
     initLCD();
     printToLCD();
-
+    
     lockInit();
 }
 
+
+/**
+ * @brief Checks the inputted PIN code, returns if correct or not
+ * 
+ * @param entry PIN code in form of integer array
+ * @param size number of characters within PIN code
+ * @return boolean value whether or not PIN code is correct
+ */
 bool checkPin(int *entry, int size) {
     if ( size == pinSize ) {
         for ( int i = 0; i < pinSize; i++ ) {
@@ -135,24 +148,24 @@ bool checkPin(int *entry, int size) {
     return false;
 }
 
-void ledBlink(void *pvParams) {
-    esp_rom_gpio_pad_select_gpio(LED_PIN);
-    gpio_set_direction(LED_PIN, GPIO_MODE_OUTPUT);
-    while (1) {
-        gpio_set_level(LED_PIN, 0);
-        vTaskDelay(4000/portTICK_PERIOD_MS);
-        gpio_set_level(LED_PIN, 1);
-        vTaskDelay(4000/portTICK_PERIOD_MS);
-    }
-}
 
-static void logErrorIfNonzero(const char *message, int error_code) {
+/**
+ * @brief 
+ * 
+ * @param message 
+ * @param error_code
+ */
+static void logErrorIfNonzero(const char *message, int error_code)   {
     if (error_code != 0) {
         ESP_LOGE(TAG, "Last error %s: 0x%x", message, error_code);
     }
 }
 
-void printDeviceInfo(void) {
+
+/**
+ * @brief Prints the device information upon startup
+ */
+void printDeviceInfo(void)  {
     /* Print chip information */
     esp_chip_info_t chip_info;
     uint32_t flash_size;
@@ -179,18 +192,30 @@ void printDeviceInfo(void) {
         esp_get_minimum_free_heap_size());
 }
 
+
+/**
+ * @brief Updates the duty cycle of the servo to lock the deadbolt
+ */
 void lockBolt(void) {
     ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, LEDC_DUTY_LOCKED);
     ledc_update_duty(LEDC_MODE, LEDC_CHANNEL);
     esp_mqtt_client_publish(client, LOCK_STATUS_TOPIC, "locked", 0, 1, 0);
 }
 
+
+/**
+ * @brief Updates the duty cycle of the servo to unlock the deadbolt
+ */
 void unlockBolt(void)   {
     ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, LEDC_DUTY_UNLOCKED);
     ledc_update_duty(LEDC_MODE, LEDC_CHANNEL);
     esp_mqtt_client_publish(client, LOCK_STATUS_TOPIC, "unlocked", 0 , 1, 0);
 }
 
+
+/**
+ * @brief Initializes a timer for PWM signal to the servo
+ */
 void lockInit(void) {
     ledc_timer_config_t ledc_timer = {
         .speed_mode       = LEDC_MODE,
@@ -214,35 +239,43 @@ void lockInit(void) {
     ESP_ERROR_CHECK(ledc_channel_config(&ledc_channel));
 }
 
+
+/**
+ * @brief Initializes pins used by the LCD and runs iniatialization sequence
+ */
 void initLCD(void) {
     // Initialize LCD GPIOs as outputs
-    gpio_set_direction(LCD_DB4, GPIO_MODE_OUTPUT);
+    gpio_set_direction(LCD_DB4, GPIO_MODE_OUTPUT); 
     gpio_set_direction(LCD_DB5, GPIO_MODE_OUTPUT);
     gpio_set_direction(LCD_DB6, GPIO_MODE_OUTPUT);
-    gpio_set_direction(LCD_DB7, GPIO_MODE_OUTPUT);
+    gpio_set_direction(LCD_DB7, GPIO_MODE_OUTPUT); 
     gpio_set_direction(LCD_RS, GPIO_MODE_OUTPUT);
     gpio_set_direction(LCD_Enable, GPIO_MODE_OUTPUT);
 
     // Drive LCD pins LOW
-    gpio_set_level(LCD_DB4, 0);
-    gpio_set_level(LCD_DB5, 0);
-    gpio_set_level(LCD_DB6, 0);
-    gpio_set_level(LCD_DB7, 0);
-    gpio_set_level(LCD_RS, 0);
+    gpio_set_level(LCD_DB4, 0); 
+    gpio_set_level(LCD_DB5, 0); 
+    gpio_set_level(LCD_DB6, 0); 
+    gpio_set_level(LCD_DB7, 0); 
+    gpio_set_level(LCD_RS, 0); 
     gpio_set_level(LCD_Enable, 0);
 
     initSequenceLCD();
 }
 
+
+/**
+ * @brief Initialization command sequence for HD44780 LCD controller
+ */
 void initSequenceLCD(void) {
     vTaskDelay(1/portTICK_PERIOD_MS);
 
     // reset sequence
-    commandWrite(0x3);
+    commandWrite(0x3); 
     vTaskDelay(10/portTICK_PERIOD_MS);
-    commandWrite(0x3);
+    commandWrite(0x3); 
     vTaskDelay(1/portTICK_PERIOD_MS);
-    commandWrite(0x3);
+    commandWrite(0x3); 
     vTaskDelay(10/portTICK_PERIOD_MS);
 
     // set to 4-bit mode
@@ -268,62 +301,110 @@ void initSequenceLCD(void) {
     vTaskDelay(1/portTICK_PERIOD_MS);
 }
 
+
+/**
+ * @brief Pulses the enable pin on the LCD
+ */
 void pulseEnable(void) {
-    gpio_set_level(LCD_Enable, 0);
+    gpio_set_level(LCD_Enable, 0); 
     vTaskDelay(1/portTICK_PERIOD_MS);
 
     gpio_set_level(LCD_Enable, 1);
     vTaskDelay(1/portTICK_PERIOD_MS);
 
-    gpio_set_level(LCD_Enable, 0);
+    gpio_set_level(LCD_Enable, 0); 
 }
 
-void push_nibble(uint8_t var) {
+
+/**
+ * @brief Pushes a nibble (4 bits) to the data pins on the LCD
+ * 
+ * @param var 4 bit number to be sent to the LCD
+ */
+void push_nibble(uint8_t var) { 
     // Drive Pins Low (clear pins)
-    gpio_set_level(LCD_DB7, 0);
+    gpio_set_level(LCD_DB7, 0); 
     gpio_set_level(LCD_DB6, 0);
-    gpio_set_level(LCD_DB5, 0);
+    gpio_set_level(LCD_DB5, 0); 
     gpio_set_level(LCD_DB4, 0);
 
-    // Set Respective Pin
-    gpio_set_level(LCD_DB7, var >> 3);
-    gpio_set_level(LCD_DB6, (var >> 2) & 1);
-    gpio_set_level(LCD_DB5, (var >> 1) & 1);
-    gpio_set_level(LCD_DB4, var & 1);
+    // Set Respective Pin 
+    gpio_set_level(LCD_DB7, var >> 3); 
+    gpio_set_level(LCD_DB6, (var >> 2) & 1); 
+    gpio_set_level(LCD_DB5, (var >> 1) & 1); 
+    gpio_set_level(LCD_DB4, var & 1); 
 
-    pulseEnable();
+    pulseEnable(); 
 }
 
+
+/**
+ * @brief Pushes a byte (8 bits) to the data pins on the LCD, 1 nibble at a time
+ * 
+ * @param var 8 bit number to be sent to the LCD
+ */
 void push_byte(uint8_t var) {
     push_nibble(var >> 4);
     push_nibble(var & 0x0F);
     vTaskDelay(1/portTICK_PERIOD_MS);
 }
 
+
+/**
+ * @brief Writes a commmand to the LCD
+ * 
+ * @param var command to be written
+ */
 void commandWrite(uint8_t var) {
-    gpio_set_level(LCD_RS, 0);
+    gpio_set_level(LCD_RS, 0); 
     vTaskDelay(1/portTICK_PERIOD_MS);
-    push_byte(var);
+    push_byte(var); 
 }
 
+
+/**
+ * @brief Writes data to the LCD
+ * 
+ * @param var data to be written (characters)
+ */
 void dataWrite(uint8_t var) {
-    gpio_set_level(LCD_RS, 1);
+    gpio_set_level(LCD_RS, 1); 
     vTaskDelay(1/portTICK_PERIOD_MS);
-    push_byte(var);
+    push_byte(var); 
 }
 
+
+/**
+ * @brief Future method to be implemented, will include switch statement to change what is displayed on the LCD
+ */
 void changeScreenStateLCD(void) {
 }
 
+
+/**
+ * @brief Future method to be implemented, will include data to be written when in the unlocked state
+ * 
+ * @param isRemote boolean value if system is unlocked through mobile app or not
+ */
 void writeUnlockScreen(bool isRemote) {
 }
 
+
+/**
+ * @brief Future method to be implemented, will include data to be written when in the locked state
+ * 
+ * @param isRemote boolean value if system is locked through mobile app or not
+ */
 void writeLockScreen(bool isRemote) {
     if ( isRemote ) {
     } else {
     }
 }
 
+
+/**
+ * @brief Prints strings to four lines of the LCD
+ */
 void printToLCD(void) {
     int count = 1;
     commandWrite(1);
@@ -348,7 +429,7 @@ void printToLCD(void) {
         vTaskDelay(20/portTICK_PERIOD_MS);
 
         // increment count so the next text can be written on the next line
-        count++;
+        count++;     
 
         for (int j = 0 ; j < (strlen(arr[i])) ; j++) {  // changed i to j
             dataWrite(arr[i][j]);
@@ -357,6 +438,13 @@ void printToLCD(void) {
     }
 }
 
+
+/**
+ * @brief 
+ * 
+ * @param len
+ * @param input
+ */
 void mqtt_pin_to_int_array(uint32_t kLen, char *input) {
     int enteredPin[kLen];
     uint32_t i = 0;
@@ -374,6 +462,7 @@ void mqtt_pin_to_int_array(uint32_t kLen, char *input) {
         lockBolt();
     }
 }
+
 
 /**
  * @brief Event handler registered to receive MQTT events
@@ -394,7 +483,7 @@ static void mqtt_event_handler(void *handler_args, esp_event_base_t base,
         base, event_id);
 
     esp_mqtt_event_handle_t event = event_data;
-
+    
     switch ((esp_mqtt_event_id_t)event_id) {
     case MQTT_EVENT_CONNECTED:
         ESP_LOGI(TAG, "MQTT_EVENT_CONNECTED");
@@ -445,6 +534,10 @@ static void mqtt_event_handler(void *handler_args, esp_event_base_t base,
     }
 }
 
+
+/**
+ * @brief
+ */
 static void mqtt_app_start(void) {
     client = esp_mqtt_client_init(&mqtt_cfg);
     esp_mqtt_client_register_event(client, ESP_EVENT_ANY_ID,
