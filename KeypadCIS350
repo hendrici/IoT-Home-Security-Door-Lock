@@ -1,0 +1,66 @@
+#include <stdio.h>
+#include <stdint.h>
+#include <stdbool.h>
+#include "driver/gpio.h"
+
+#define ROWS 4       // Number of rows in the keypad
+#define COLS 3       // Number of columns in the keypad
+
+// Keypad layout
+char keys[ROWS][COLS] = {
+  {'1', '2', '3'},
+  {'4', '5', '6'},
+  {'7', '8', '9'},
+  {'*', '0', '#'}
+};
+
+gpio_num_t rowPins[ROWS] = {GPIO_NUM_2, GPIO_NUM_3, GPIO_NUM_4, GPIO_NUM_5};
+gpio_num_t colPins[COLS] = {GPIO_NUM_6, GPIO_NUM_7, GPIO_NUM_8};
+
+// Initialize GPIO pins for keypad
+void keypad_init() {
+  for (int i = 0; i < ROWS; i++) {
+    gpio_pad_select_gpio(rowPins[i]);
+    gpio_set_direction(rowPins[i], GPIO_MODE_INPUT);
+    gpio_set_pull_mode(rowPins[i], GPIO_PULLUP_ONLY);
+  }
+  
+  for (int j = 0; j < COLS; j++) {
+    gpio_pad_select_gpio(colPins[j]);
+    gpio_set_direction(colPins[j], GPIO_MODE_OUTPUT);
+    gpio_set_level(colPins[j], 1);
+  }
+}
+
+// Read keypad input
+char keypad_read() {
+  for (int i = 0; i < COLS; i++) {
+    gpio_set_level(colPins[i], 0);
+    
+    for (int j = 0; j < ROWS; j++) {
+      if (gpio_get_level(rowPins[j]) == 0) {
+        while (gpio_get_level(rowPins[j]) == 0) {}  // Wait for key release
+        gpio_set_level(colPins[i], 1);
+        return keys[j][i];
+      }
+    }
+    
+    gpio_set_level(colPins[i], 1);
+  }
+  
+  return '\0';  // No key pressed
+}
+
+// Main program
+void app_main() {
+  keypad_init();
+
+  while (1) {
+    char key = keypad_read();
+    
+    if (key != '\0') {
+      printf("Key pressed: %c\n", key);
+      // Do something with the key value
+    }
+  }
+}
