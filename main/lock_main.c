@@ -62,6 +62,8 @@
 #define COL_2_PIN               GPIO_NUM_22
 #define COL_3_PIN               GPIO_NUM_23
 
+int colPins[COLS] = {COL_1_PIN, COL_2_PIN, COL_3_PIN};
+
 #define CONFIG_BROKER_URL       "mqtt://test.mosquitto.org/"
 
 /* ---------------------------- Global Variables ---------------------------- */
@@ -80,7 +82,7 @@ char arr[NUMBER_OF_STRING][MAX_STRING_SIZE] = {
 
 // Variables for tracking key press state
 volatile bool keyWasPressed = false;
-volatile char lastKey;
+int lastKey;
 
 int pinSize = 6;
 int pin[6] = {1, 2, 3, 4, 5, 6};
@@ -111,34 +113,34 @@ static void mqtt_app_start(void);
 /**
  * @brief Main function for application
  */
-void app_main(void) {
-    printDeviceInfo();
+// void app_main(void) {
+//     printDeviceInfo();
 
-    ESP_LOGI(TAG, "[APP] Startup..");
-    ESP_LOGI(TAG, "[APP] Free memory: %" PRIu32 " bytes",
-        esp_get_free_heap_size());
-    ESP_LOGI(TAG, "[APP] IDF version: %s", esp_get_idf_version());
+//     ESP_LOGI(TAG, "[APP] Startup..");
+//     ESP_LOGI(TAG, "[APP] Free memory: %" PRIu32 " bytes",
+//         esp_get_free_heap_size());
+//     ESP_LOGI(TAG, "[APP] IDF version: %s", esp_get_idf_version());
 
-    esp_log_level_set("*", ESP_LOG_INFO);
-    esp_log_level_set("mqtt_client", ESP_LOG_VERBOSE);
-    esp_log_level_set("MQTT_EXAMPLE", ESP_LOG_VERBOSE);
-    esp_log_level_set("TRANSPORT_BASE", ESP_LOG_VERBOSE);
-    esp_log_level_set("esp-tls", ESP_LOG_VERBOSE);
-    esp_log_level_set("TRANSPORT", ESP_LOG_VERBOSE);
-    esp_log_level_set("outbox", ESP_LOG_VERBOSE);
+//     esp_log_level_set("*", ESP_LOG_INFO);
+//     esp_log_level_set("mqtt_client", ESP_LOG_VERBOSE);
+//     esp_log_level_set("MQTT_EXAMPLE", ESP_LOG_VERBOSE);
+//     esp_log_level_set("TRANSPORT_BASE", ESP_LOG_VERBOSE);
+//     esp_log_level_set("esp-tls", ESP_LOG_VERBOSE);
+//     esp_log_level_set("TRANSPORT", ESP_LOG_VERBOSE);
+//     esp_log_level_set("outbox", ESP_LOG_VERBOSE);
 
-    ESP_ERROR_CHECK(nvs_flash_init());
-    ESP_ERROR_CHECK(esp_netif_init());
-    ESP_ERROR_CHECK(esp_event_loop_create_default());
-    ESP_ERROR_CHECK(example_connect());
+//     ESP_ERROR_CHECK(nvs_flash_init());
+//     ESP_ERROR_CHECK(esp_netif_init());
+//     ESP_ERROR_CHECK(esp_event_loop_create_default());
+//     ESP_ERROR_CHECK(example_connect());
 
-    mqtt_app_start();
+//     mqtt_app_start();
 
-    initLCD();
-    printToLCD();
+//     initLCD();
+//     printToLCD();
     
-    lockInit();
-}
+//     lockInit();
+// }
 
 
 /**
@@ -567,10 +569,10 @@ static void mqtt_app_start(void) {
 }
 
 
-uint8_t Keypad_Read(void){
+int Keypad_Read(void){
 
     uint8_t col, row = 0;
-    int num = 0;
+    int num = -1;
 
     for(col = 0; col<3; col++){
         // Set all cols to input
@@ -578,45 +580,52 @@ uint8_t Keypad_Read(void){
         gpio_set_direction(COL_2_PIN, GPIO_MODE_INPUT);
         gpio_set_direction(COL_3_PIN, GPIO_MODE_INPUT);
 
-        vTaskDelay(500/portTICK_PERIOD_MS);
+        //vTaskDelay(500/portTICK_PERIOD_MS);
         // set current col to output
-        gpio_set_direction(COL_1_PIN + col, GPIO_MODE_OUTPUT);
-        gpio_set_level(COL_1_PIN + col, 0);  
+        gpio_set_direction(colPins[col], GPIO_MODE_OUTPUT);
+        gpio_set_level(colPins[col], 0);  
 
 
         // vTaskDelay(pdMS_TO_TICKS(10));
-        vTaskDelay(500/portTICK_PERIOD_MS);
+        //vTaskDelay(500/portTICK_PERIOD_MS);
 
 
         if(gpio_get_level(ROW_1_PIN) == 0){
-            //while(gpio_get_level(ROW_1_PIN) == 0);
+            while(gpio_get_level(ROW_1_PIN) == 0);
             row = 1;
         }
         else if(gpio_get_level(ROW_2_PIN) == 0){
-            //while(gpio_get_level(ROW_2_PIN) == 0);
+            while(gpio_get_level(ROW_2_PIN) == 0);
             row = 2;
         }
         else if(gpio_get_level(ROW_3_PIN) == 0){
-            //while(gpio_get_level(ROW_3_PIN) == 0);
+            while(gpio_get_level(ROW_3_PIN) == 0);
             row = 3;
         }
         else if(gpio_get_level(ROW_4_PIN) == 0){
-            //while(gpio_get_level(ROW_4_PIN) == 0);
+            while(gpio_get_level(ROW_4_PIN) == 0);
             row = 4;
         }
+
 
         if(row != 0){//if one of the inputs is low then a key is pressed
             break;
         }
+
+        // End of for iteration, no row selected return 0
+        if(col == 2){
+            return -1;
+        }
+            
     }
 
     gpio_set_direction(COL_1_PIN, GPIO_MODE_INPUT);
     gpio_set_direction(COL_2_PIN, GPIO_MODE_INPUT);
     gpio_set_direction(COL_3_PIN, GPIO_MODE_INPUT);
 
-    if(col == 3){
-        return 0;
-    }
+    // if(col == 2){
+    //     return -1;
+    // }
 
     if(row == 1){//key in row 0
         num = col + 1;
@@ -634,7 +643,8 @@ uint8_t Keypad_Read(void){
         num = 9 + col + 1;
     }
 
-    printf("Num: %d\n", num);
+    //printf("Num: %d\n", num);
+    lastKey = num;
     return num;
 }
 
@@ -669,20 +679,25 @@ void initKeypad(){
 }
 
 
-// void app_main(void) {
-//     printf("Hello World\n");
+void app_main(void) {
+    printf("Hello World\n");
 
-//     initKeypad();
+    initKeypad();
 
+    int val = -1;
+    while (1) {
+        val = Keypad_Read();
 
-//     while (1) {
-//         Keypad_Read();
+        if(val != -1){
+            printf("Number = %d\n", lastKey);
+            val = -1;
+        }
 
-//         vTaskDelay(pdMS_TO_TICKS(1000));  // Adjust the delay as per your requirements
-//     }
-//     esp_mqtt_client_publish(client, LOCK_STATUS_TOPIC, "locked", 0, 0, 0);
-//     esp_mqtt_client_subscribe(client, PIN_OUTPUT_TOPIC, 1);
-// }
+        //vTaskDelay(pdMS_TO_TICKS(1000));  // Adjust the delay as per your requirements
+    }
+    esp_mqtt_client_publish(client, LOCK_STATUS_TOPIC, "locked", 0, 0, 0);
+    esp_mqtt_client_subscribe(client, PIN_OUTPUT_TOPIC, 1);
+}
 
 
 // void app_main(void) 
