@@ -28,18 +28,17 @@
 #include "mqtt_client.h"
 
 /* ---------------------------- Macro Definitions --------------------------- */
-#define LOCK_STATUS_TOPIC  "brendan/lockStatus/"
-#define PIN_OUTPUT_TOPIC   "brendan/pinEntry/"
+#define LOCK_STATUS_TOPIC       "brendan/lockStatus/"
+#define PIN_OUTPUT_TOPIC        "brendan/pinEntry/"
 
-#define LED_PIN 2
-#define SERVO_PIN 4
+#define SERVO_PIN               GPIO_NUM_4
 
-#define LCD_Enable              GPIO_NUM_22
-#define LCD_RS                  GPIO_NUM_23
+#define LCD_Enable              GPIO_NUM_0
+#define LCD_RS                  GPIO_NUM_19
 #define LCD_DB4                 GPIO_NUM_32
 #define LCD_DB5                 GPIO_NUM_33
-#define LCD_DB6                 GPIO_NUM_25
-#define LCD_DB7                 GPIO_NUM_26
+#define LCD_DB6                 GPIO_NUM_16
+#define LCD_DB7                 GPIO_NUM_17
 
 #define LEDC_TIMER              LEDC_TIMER_0
 #define LEDC_MODE               LEDC_LOW_SPEED_MODE
@@ -50,18 +49,18 @@
 #define LEDC_DUTY_UNLOCKED      (((1 << 13) - 1) * 0.07)
 #define LEDC_FREQUENCY          (50)
 
-#define MAX_STRING_SIZE 40
-#define NUMBER_OF_STRING 4
+#define MAX_STRING_SIZE         40
+#define NUMBER_OF_STRING        4
 
-#define ROWS 4
-#define COLS 3
-#define ROW_1_PIN GPIO_NUM_25
-#define ROW_2_PIN GPIO_NUM_26
-#define ROW_3_PIN GPIO_NUM_27
-#define ROW_4_PIN GPIO_NUM_18
-#define COL_1_PIN GPIO_NUM_21
-#define COL_2_PIN GPIO_NUM_22
-#define COL_3_PIN GPIO_NUM_23
+#define ROWS                    4
+#define COLS                    3
+#define ROW_1_PIN               GPIO_NUM_25
+#define ROW_2_PIN               GPIO_NUM_26
+#define ROW_3_PIN               GPIO_NUM_27
+#define ROW_4_PIN               GPIO_NUM_18
+#define COL_1_PIN               GPIO_NUM_21
+#define COL_2_PIN               GPIO_NUM_22
+#define COL_3_PIN               GPIO_NUM_23
 
 #define CONFIG_BROKER_URL       "mqtt://test.mosquitto.org/"
 
@@ -466,15 +465,15 @@ void printToLCD(void) {
 void mqtt_pin_to_int_array(uint32_t kLen, char *input) {
     int enteredPin[kLen];
     uint32_t i = 0;
-    for ( i = 0; i < len; i++ ) {
+    for ( i = 0; i < kLen; i++ ) {
         enteredPin[i] = input[i] - '0';
     }
-    for ( i = 0; i < len; i++ ) {
+    for ( i = 0; i < kLen; i++ ) {
         printf("%d ", enteredPin[i]);
     }
     printf("\n");
 
-    if ( checkPin(enteredPin, len) ) {
+    if ( checkPin(enteredPin, kLen) ) {
         unlockBolt();
     } else {
         lockBolt();
@@ -567,30 +566,6 @@ static void mqtt_app_start(void) {
     esp_mqtt_client_subscribe(client, PIN_OUTPUT_TOPIC, 1);
 }
 
-void printDeviceInfo(void){
-    /* Print chip information */
-    esp_chip_info_t chip_info;
-    uint32_t flash_size;
-    esp_chip_info(&chip_info);
-    printf("This is %s chip with %d CPU core(s), WiFi%s%s, ",
-           CONFIG_IDF_TARGET,
-           chip_info.cores,
-           (chip_info.features & CHIP_FEATURE_BT) ? "/BT" : "",
-           (chip_info.features & CHIP_FEATURE_BLE) ? "/BLE" : "");
-
-    unsigned major_rev = chip_info.revision / 100;
-    unsigned minor_rev = chip_info.revision % 100;
-    printf("silicon revision v%d.%d, ", major_rev, minor_rev);
-    if(esp_flash_get_size(NULL, &flash_size) != ESP_OK) {
-        printf("Get flash size failed");
-        return;
-    }
-
-    printf("%" PRIu32 "MB %s flash\n", flash_size / (uint32_t)(1024 * 1024),
-           (chip_info.features & CHIP_FEATURE_EMB_FLASH) ? "embedded" : "external");
-
-    printf("Minimum free heap size: %" PRIu32 " bytes\n", esp_get_minimum_free_heap_size());
-}
 
 uint8_t Keypad_Read(void){
 
@@ -694,20 +669,20 @@ void initKeypad(){
 }
 
 
-void app_main(void) {
-    printf("Hello World\n");
+// void app_main(void) {
+//     printf("Hello World\n");
 
-    initKeypad();
+//     initKeypad();
 
 
-    while (1) {
-        Keypad_Read();
+//     while (1) {
+//         Keypad_Read();
 
-        vTaskDelay(pdMS_TO_TICKS(1000));  // Adjust the delay as per your requirements
-    }
-    esp_mqtt_client_publish(client, LOCK_STATUS_TOPIC, "locked", 0, 0, 0);
-    esp_mqtt_client_subscribe(client, PIN_OUTPUT_TOPIC, 1);
-}
+//         vTaskDelay(pdMS_TO_TICKS(1000));  // Adjust the delay as per your requirements
+//     }
+//     esp_mqtt_client_publish(client, LOCK_STATUS_TOPIC, "locked", 0, 0, 0);
+//     esp_mqtt_client_subscribe(client, PIN_OUTPUT_TOPIC, 1);
+// }
 
 
 // void app_main(void) 
