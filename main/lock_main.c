@@ -606,15 +606,19 @@ char keypad_read() {
     
     for (int j = 0; j < ROWS; j++) {
       if (gpio_get_level(rowPins[j]) == 0) {
-        while (gpio_get_level(rowPins[j]) == 0) {}  // Wait for key release
-        gpio_set_level(colPins[i], 1);
-        return keys[j][i];
+         
+        if (gpio_get_level(rowPins[j]) == 0) {
+            while (!gpio_get_level(rowPins[j]));
+            vTaskDelay(200/portTICK_PERIOD_MS);
+            gpio_set_level(colPins[i], 1);
+            return keys[j][i];
+        }
       }
     }
     
     gpio_set_level(colPins[i], 1);
   }
-  
+
   return '\0';  // No key pressed
 }
 
@@ -627,16 +631,16 @@ char keypad_read() {
  * 
  * @return unint8_t stable state of button press
  */
-unint8_t GanssleDebounce1(){
-    static uint16_t State = 0;  // Current debounce state
+// unint8_t GanssleDebounce1(){
+//     static uint16_t State = 0;  // Current debounce state
 
-    // Read P2.3 (PB Switch), upper 5 bits of state don't matter.
-    State = (State << 1) | (P2IN & 0x2) >> 1 | 0xf800;
+//     // Read P2.3 (PB Switch), upper 5 bits of state don't matter.
+//     State = (State << 1) | (P2IN & 0x2) >> 1 | 0xf800;
 
-    // If the '0' level (pressed) is stable for 10 calls, return 1
-    // otherwise, return 0.
-    if(State == 0xfc00){
-        return 1;
-    }
-    return 0;
-}
+//     // If the '0' level (pressed) is stable for 10 calls, return 1
+//     // otherwise, return 0.
+//     if(State == 0xfc00){
+//         return 1;
+//     }
+//     return 0;
+// }
