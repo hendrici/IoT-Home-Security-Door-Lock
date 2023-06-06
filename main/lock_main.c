@@ -87,6 +87,8 @@ int lastKey;
 int pinSize = 6;
 int pin[6] = {1, 2, 3, 4, 5, 6};
 
+int keypadPin[6] = {1, 2, 3, 4, 5, 6};
+
 /* --------------------------- Function Prototypes -------------------------- */
 void ledBlink(void *pvParams);
 static void logErrorIfNonzero(const char *message, int error_code);
@@ -643,6 +645,7 @@ int Keypad_Read(void){
         num = 9 + col + 1;
     }
 
+    vTaskDelay(100/portTICK_PERIOD_MS);
     //printf("Num: %d\n", num);
     lastKey = num;
     return num;
@@ -685,12 +688,22 @@ void app_main(void) {
     initKeypad();
 
     int val = -1;
+    int i = 0;
     while (1) {
         val = Keypad_Read();
 
         if(val != -1){
+            keypadPin[i] = lastKey;
+            i++;
             printf("Number = %d\n", lastKey);
             val = -1;
+            if(i == 6){
+                printf(" Pin  code: ");
+                for(int j = 0; j < 6; j++)
+                    printf("%d", keypadPin[j]);
+                i = 0;
+                printf("\n");
+            }
         }
 
         //vTaskDelay(pdMS_TO_TICKS(1000));  // Adjust the delay as per your requirements
