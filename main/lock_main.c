@@ -72,6 +72,20 @@ char arr[NUMBER_OF_STRING][MAX_STRING_SIZE] = {
 int pinSize = 6;
 int pin[6] = {1, 2, 3, 4, 5, 6};
 
+#define ROWS 4       // Number of rows in the keypad
+#define COLS 3       // Number of columns in the keypad
+
+// Keypad layout
+char keys[ROWS][COLS] = {
+  {'1', '2', '3'},
+  {'4', '5', '6'},
+  {'7', '8', '9'},
+  {'*', '0', '#'}
+};
+
+gpio_num_t rowPins[ROWS] = {GPIO_NUM_25, GPIO_NUM_26, GPIO_NUM_27, GPIO_NUM_18};
+gpio_num_t colPins[COLS] = {GPIO_NUM_21, GPIO_NUM_22, GPIO_NUM_23};
+
 /* --------------------------- Function Prototypes -------------------------- */
 void ledBlink(void *pvParams);
 static void logErrorIfNonzero(const char *message, int error_code);
@@ -91,6 +105,8 @@ void printToLCD(void);
 static void mqtt_event_handler(void *handler_args, esp_event_base_t base,
     int32_t event_id, void *event_data);
 static void mqtt_app_start(void);
+char keypad_read();
+void keypad_init();
 
 /* ------------------------------------------------------------------------ */
 
@@ -101,30 +117,42 @@ static void mqtt_app_start(void);
 void app_main(void) {
     printDeviceInfo();
 
-    ESP_LOGI(TAG, "[APP] Startup..");
-    ESP_LOGI(TAG, "[APP] Free memory: %" PRIu32 " bytes",
-        esp_get_free_heap_size());
-    ESP_LOGI(TAG, "[APP] IDF version: %s", esp_get_idf_version());
+    // ESP_LOGI(TAG, "[APP] Startup..");
+    // ESP_LOGI(TAG, "[APP] Free memory: %" PRIu32 " bytes",
+    //     esp_get_free_heap_size());
+    // ESP_LOGI(TAG, "[APP] IDF version: %s", esp_get_idf_version());
 
-    esp_log_level_set("*", ESP_LOG_INFO);
-    esp_log_level_set("mqtt_client", ESP_LOG_VERBOSE);
-    esp_log_level_set("MQTT_EXAMPLE", ESP_LOG_VERBOSE);
-    esp_log_level_set("TRANSPORT_BASE", ESP_LOG_VERBOSE);
-    esp_log_level_set("esp-tls", ESP_LOG_VERBOSE);
-    esp_log_level_set("TRANSPORT", ESP_LOG_VERBOSE);
-    esp_log_level_set("outbox", ESP_LOG_VERBOSE);
+    // esp_log_level_set("*", ESP_LOG_INFO);
+    // esp_log_level_set("mqtt_client", ESP_LOG_VERBOSE);
+    // esp_log_level_set("MQTT_EXAMPLE", ESP_LOG_VERBOSE);
+    // esp_log_level_set("TRANSPORT_BASE", ESP_LOG_VERBOSE);
+    // esp_log_level_set("esp-tls", ESP_LOG_VERBOSE);
+    // esp_log_level_set("TRANSPORT", ESP_LOG_VERBOSE);
+    // esp_log_level_set("outbox", ESP_LOG_VERBOSE);
 
-    ESP_ERROR_CHECK(nvs_flash_init());
-    ESP_ERROR_CHECK(esp_netif_init());
-    ESP_ERROR_CHECK(esp_event_loop_create_default());
-    ESP_ERROR_CHECK(example_connect());
+    // ESP_ERROR_CHECK(nvs_flash_init());
+    // ESP_ERROR_CHECK(esp_netif_init());
+    // ESP_ERROR_CHECK(esp_event_loop_create_default());
+    // ESP_ERROR_CHECK(example_connect());
 
-    mqtt_app_start();
+    // mqtt_app_start();
 
     initLCD();
+    keypad_init();
     printToLCD();
     
     lockInit();
+
+    char val = '\0'; 
+    while (1) {
+
+        val = keypad_read(); 
+
+        if (val != '\0') {
+            printf("Keypad Value is %c\n", val); 
+            val = '\0'; 
+        }
+    }
 }
 
 
@@ -452,15 +480,15 @@ void printToLCD(void) {
 void mqtt_pin_to_int_array(uint32_t kLen, char *input) {
     int enteredPin[kLen];
     uint32_t i = 0;
-    for ( i = 0; i < len; i++ ) {
+    for ( i = 0; i < kLen; i++ ) {
         enteredPin[i] = input[i] - '0';
     }
-    for ( i = 0; i < len; i++ ) {
+    for ( i = 0; i < kLen; i++ ) {
         printf("%d ", enteredPin[i]);
     }
     printf("\n");
 
-    if ( checkPin(enteredPin, len) ) {
+    if ( checkPin(enteredPin, kLen) ) {
         unlockBolt();
     } else {
         lockBolt();
@@ -551,4 +579,64 @@ static void mqtt_app_start(void) {
     esp_mqtt_client_start(client);
     esp_mqtt_client_publish(client, LOCK_STATUS_TOPIC, "locked", 0, 0, 0);
     esp_mqtt_client_subscribe(client, PIN_OUTPUT_TOPIC, 1);
+}
+
+
+
+
+// Initialize GPIO pins for keypad
+void keypad_init() {
+  for (int i = 0; i < ROWS; i++) {
+    esp_rom_gpio_pad_select_gpio(rowPins[i]);
+    gpio_set_direction(rowPins[i], GPIO_MODE_INPUT);
+    gpio_set_pull_mode(rowPins[i], GPIO_PULLUP_ONLY);
+  }
+  
+  for (int j = 0; j < COLS; j++) {
+    esp_rom_gpio_pad_select_gpio(colPins[j]);
+    gpio_set_direction(colPins[j], GPIO_MODE_OUTPUT);
+    gpio_set_level(colPins[j], 1);
+  }
+}
+
+// Read keypad input
+char keypad_read() {
+  for (int i = 0; i < COLS; i++) {
+    gpio_set_level(colPins[i], 0);
+    
+    for (int j = 0; j < ROWS; j++) {
+      if (gpio_get_level(rowPins[j]) == 0) {
+        while (gpio_get_level(rowPins[j]) == 0) {}  // Wait for key release
+        gpio_set_level(colPins[i], 1);
+        return keys[j][i];
+      }
+    }
+    
+    gpio_set_level(colPins[i], 1);
+  }
+  
+  return '\0';  // No key pressed
+}
+
+
+
+/**
+ * @brief Performs debounce using the Ganssel method
+ * Note: 0xfc00 = 1111 1100 0000 0000
+ * Note: 0xf800 = 1111 1000 0000 0000
+ * 
+ * @return unint8_t stable state of button press
+ */
+unint8_t GanssleDebounce1(){
+    static uint16_t State = 0;  // Current debounce state
+
+    // Read P2.3 (PB Switch), upper 5 bits of state don't matter.
+    State = (State << 1) | (P2IN & 0x2) >> 1 | 0xf800;
+
+    // If the '0' level (pressed) is stable for 10 calls, return 1
+    // otherwise, return 0.
+    if(State == 0xfc00){
+        return 1;
+    }
+    return 0;
 }
