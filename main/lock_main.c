@@ -108,6 +108,8 @@ void printToLCD(void);
 static void mqtt_event_handler(void *handler_args, esp_event_base_t base,
     int32_t event_id, void *event_data);
 static void mqtt_app_start(void);
+void initKeypad(void);
+int Keypad_Read(void);
 
 /* ------------------------------------------------------------------------ */
 
@@ -569,7 +571,6 @@ static void mqtt_app_start(void) {
     esp_mqtt_client_publish(client, LOCK_STATUS_TOPIC, "locked", 0, 0, 0);
     esp_mqtt_client_subscribe(client, PIN_OUTPUT_TOPIC, 1);
 }
-
 
 int Keypad_Read(void){
 
