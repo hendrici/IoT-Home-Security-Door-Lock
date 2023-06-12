@@ -54,6 +54,7 @@ class LockPage extends HookConsumerWidget {
                 validator: (String? value) {
                   return (value != null) ? 'Do not use the @ char.' : null;
                 },
+                keyboardType: TextInputType.number,
               ),
             ),
             ElevatedButton(

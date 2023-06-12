@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'router/app_routes.dart';
+import 'package:lock_app/pages/lock_page.dart';
 
 void main() {
   runApp(
@@ -14,10 +14,8 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp.router(
-      routeInformationProvider: AppRouter.router.routeInformationProvider,
-      routeInformationParser: AppRouter.router.routeInformationParser,
-      routerDelegate: AppRouter.router.routerDelegate,
+    return MaterialApp(
+      builder: (context, child) => const LockPage(),
       title: 'lock_app',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
