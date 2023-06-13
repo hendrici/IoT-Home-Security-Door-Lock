@@ -512,7 +512,7 @@ void mqtt_pin_to_int_array(uint32_t kLen, char *input)
     }
     printf("\n");
 
-    checkPin(enteredPin, kLen)
+    checkPin(enteredPin, kLen);
 }
 
 /**
@@ -763,7 +763,7 @@ void Keypad_Task(void *arg)
                     //         printf("%d", enteredPin[j]);
                     i = 0;
                     //     printf("\n");
-                    checkPin(enteredPin,)
+                    checkPin(enteredPin,PIN_SIZE);
                 }
             }
         }
