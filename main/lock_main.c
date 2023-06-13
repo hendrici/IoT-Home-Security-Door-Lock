@@ -604,13 +604,10 @@ int Keypad_Read(void)
         gpio_set_direction(COL_2_PIN, GPIO_MODE_INPUT);
         gpio_set_direction(COL_3_PIN, GPIO_MODE_INPUT);
 
-        // vTaskDelay(500/portTICK_PERIOD_MS);
         //  set current col to output
         gpio_set_direction(colPins[col], GPIO_MODE_OUTPUT);
         gpio_set_level(colPins[col], 0);
 
-        // vTaskDelay(pdMS_TO_TICKS(10));
-        // vTaskDelay(500/portTICK_PERIOD_MS);
 
         if (gpio_get_level(ROW_1_PIN) == 0)
         {
@@ -665,9 +662,6 @@ int Keypad_Read(void)
     gpio_set_direction(COL_2_PIN, GPIO_MODE_INPUT);
     gpio_set_direction(COL_3_PIN, GPIO_MODE_INPUT);
 
-    // if(col == 2){
-    //     return -1;
-    // }
 
     if (row == 1)
     { // key in row 0
@@ -690,7 +684,6 @@ int Keypad_Read(void)
     }
 
     vTaskDelay(200 / portTICK_PERIOD_MS);
-    // printf("Num: %d\n", num);
     lastKey = num;
     return num;
 }
