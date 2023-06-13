@@ -50,7 +50,6 @@
 #define LEDC_FREQUENCY          (50)
 
 #define MAX_STRING_SIZE         40
-#define NUMBER_OF_STRING        4
 
 #define ROWS                    4
 #define COLS                    3
@@ -74,11 +73,6 @@ esp_mqtt_client_config_t mqtt_cfg = {
 };
 
 esp_mqtt_client_handle_t client;
-
-// 2 dimensional array to store strings
-char arr[NUMBER_OF_STRING][MAX_STRING_SIZE] = {
-      "CIS 350", "Midterm Release", "", "Group 1"
-};
 
 // Variables for tracking key press state
 volatile bool keyWasPressed = false;
@@ -104,7 +98,8 @@ void push_byte(uint8_t var);
 void commandWrite(uint8_t var);
 void dataWrite(uint8_t var);
 void writeEnterPinScreen(void);
-void printToLCD(void);
+void writePinEntry(uint8_t pinLocation, char pinNum);
+void printToLCD(uint8_t numStrings, char **strings, uint8_t startLine);
 static void mqtt_event_handler(void *handler_args, esp_event_base_t base,
     int32_t event_id, void *event_data);
 static void mqtt_app_start(void);
@@ -117,34 +112,37 @@ int Keypad_Read(void);
 /**
  * @brief Main function for application
  */
-// void app_main(void) {
-//     printDeviceInfo();
+void app_main(void) {
+    // printDeviceInfo();
 
-//     ESP_LOGI(TAG, "[APP] Startup..");
-//     ESP_LOGI(TAG, "[APP] Free memory: %" PRIu32 " bytes",
-//         esp_get_free_heap_size());
-//     ESP_LOGI(TAG, "[APP] IDF version: %s", esp_get_idf_version());
+    // ESP_LOGI(TAG, "[APP] Startup..");
+    // ESP_LOGI(TAG, "[APP] Free memory: %" PRIu32 " bytes",
+    //     esp_get_free_heap_size());
+    // ESP_LOGI(TAG, "[APP] IDF version: %s", esp_get_idf_version());
 
-//     esp_log_level_set("*", ESP_LOG_INFO);
-//     esp_log_level_set("mqtt_client", ESP_LOG_VERBOSE);
-//     esp_log_level_set("MQTT_EXAMPLE", ESP_LOG_VERBOSE);
-//     esp_log_level_set("TRANSPORT_BASE", ESP_LOG_VERBOSE);
-//     esp_log_level_set("esp-tls", ESP_LOG_VERBOSE);
-//     esp_log_level_set("TRANSPORT", ESP_LOG_VERBOSE);
-//     esp_log_level_set("outbox", ESP_LOG_VERBOSE);
+    // esp_log_level_set("*", ESP_LOG_INFO);
+    // esp_log_level_set("mqtt_client", ESP_LOG_VERBOSE);
+    // esp_log_level_set("MQTT_EXAMPLE", ESP_LOG_VERBOSE);
+    // esp_log_level_set("TRANSPORT_BASE", ESP_LOG_VERBOSE);
+    // esp_log_level_set("esp-tls", ESP_LOG_VERBOSE);
+    // esp_log_level_set("TRANSPORT", ESP_LOG_VERBOSE);
+    // esp_log_level_set("outbox", ESP_LOG_VERBOSE);
 
-//     ESP_ERROR_CHECK(nvs_flash_init());
-//     ESP_ERROR_CHECK(esp_netif_init());
-//     ESP_ERROR_CHECK(esp_event_loop_create_default());
-//     ESP_ERROR_CHECK(example_connect());
+    // ESP_ERROR_CHECK(nvs_flash_init());
+    // ESP_ERROR_CHECK(esp_netif_init());
+    // ESP_ERROR_CHECK(esp_event_loop_create_default());
+    // ESP_ERROR_CHECK(example_connect());
 
-//     mqtt_app_start();
+    // mqtt_app_start();
 
-//     initLCD();
-//     printToLCD();
+    initLCD();
+    writePinEntry(0, '8');
+    writePinEntry(1, '5');
+    writePinEntry(2, '2');
+    writePinEntry(3, '0');
     
-//     lockInit();
-// }
+    // lockInit();
+}
 
 
 /**
@@ -309,7 +307,7 @@ void initSequenceLCD(void) {
     // vTaskDelay(1/portTICK_PERIOD_MS);
 
     // turns display and cursor ON, blinking
-    commandWrite(0xF);
+    commandWrite(0xC);
     vTaskDelay(1/portTICK_PERIOD_MS);
 
     // clear display, move cursor to home
@@ -416,30 +414,56 @@ void writeUnlockScreen(bool isRemote) {
  * @param isRemote boolean value if system is locked through mobile app or not
  */
 void writeLockScreen(bool isRemote) {
-    if ( isRemote ) {
-    } else {
-    }
+}
+
+/**
+ * @brief
+ */
+void writeEnterPinScreen(void)  {
+    char *message[3] = {"Enter PIN:","****"};
+    printToLCD(2, message, 2);
 }
 
 
 /**
- * @brief Prints strings to four lines of the LCD
+ * @brief 
+ * 
+ * @param
+ * @param
  */
-void printToLCD(void) {
-    int count = 1;
+void writePinEntry(uint8_t pinLocation, char pinNum) {
+    if (pinLocation == 0)   {
+        writeEnterPinScreen();
+        commandWrite(0x96);
+        vTaskDelay(20/portTICK_PERIOD_MS);
+    }
+
+    dataWrite(pinNum);
+    vTaskDelay(20/portTICK_PERIOD_MS);
+}
+
+/**
+ * @brief Prints strings to four lines of the LCD
+ * 
+ * @param
+ * @param
+ * @param
+ */
+void printToLCD(uint8_t numStrings, char **strings, uint8_t startLine) {
+    uint8_t count = startLine;
     commandWrite(1);
     vTaskDelay(20/portTICK_PERIOD_MS);
 
-    for (int i = 0 ; i < NUMBER_OF_STRING ; i++) {
+    for (int i = 0 ; i < numStrings ; i++) {
         switch (count) {
             case 1 :
                 commandWrite(0x85);        // first line
                 break;
             case 2 :
-                commandWrite(0xC1);        // second line
+                commandWrite(0xC3);        // second line
                 break;
             case 3 :
-                commandWrite(0x95);        // third line
+                commandWrite(0x96);        // third line
                 break;
             case 4 :
                 commandWrite(0xD5);        // fourth line
@@ -451,8 +475,8 @@ void printToLCD(void) {
         // increment count so the next text can be written on the next line
         count++;     
 
-        for (int j = 0 ; j < (strlen(arr[i])) ; j++) {  // changed i to j
-            dataWrite(arr[i][j]);
+        for (int j = 0 ; j < (strlen(strings[i])) ; j++) { 
+            dataWrite(strings[i][j]);
             vTaskDelay(20/portTICK_PERIOD_MS);
         }
     }
@@ -691,33 +715,33 @@ void initKeypad(){
 }
 
 
-void app_main(void) {
-    printf("Hello World\n");
+// void app_main(void) {
+//     printf("Hello World\n");
 
-    initKeypad();
+//     initKeypad();
 
-    int val = -1;
-    int i = 0;
-    while (1) {
-        val = Keypad_Read();
+//     int val = -1;
+//     int i = 0;
+//     while (1) {
+//         val = Keypad_Read();
 
-        if(val != -1){
-            keypadPin[i] = lastKey;
-            i++;
-            printf("Number = %d\n", lastKey);
-            val = -1;
-            if(i == 6){
-                printf(" Pin  code: ");
-                for(int j = 0; j < 6; j++)
-                    printf("%d", keypadPin[j]);
-                i = 0;
-                printf("\n");
-            }
-        }
+//         if(val != -1){
+//             keypadPin[i] = lastKey;
+//             i++;
+//             printf("Number = %d\n", lastKey);
+//             val = -1;
+//             if(i == 6){
+//                 printf(" Pin  code: ");
+//                 for(int j = 0; j < 6; j++)
+//                     printf("%d", keypadPin[j]);
+//                 i = 0;
+//                 printf("\n");
+//             }
+//         }
 
-        //vTaskDelay(pdMS_TO_TICKS(1000));  // Adjust the delay as per your requirements
-    }
-    esp_mqtt_client_publish(client, LOCK_STATUS_TOPIC, "locked", 0, 0, 0);
-    esp_mqtt_client_subscribe(client, PIN_OUTPUT_TOPIC, 1);
-}
+//         //vTaskDelay(pdMS_TO_TICKS(1000));  // Adjust the delay as per your requirements
+//     }
+//     esp_mqtt_client_publish(client, LOCK_STATUS_TOPIC, "locked", 0, 0, 0);
+//     esp_mqtt_client_subscribe(client, PIN_OUTPUT_TOPIC, 1);
+// }
 
