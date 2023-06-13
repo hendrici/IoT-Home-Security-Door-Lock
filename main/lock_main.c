@@ -31,7 +31,7 @@
 #define LOCK_STATUS_TOPIC "brendan/lockStatus/"
 #define PIN_OUTPUT_TOPIC "brendan/pinEntry/"
 
-#define PIN_SIZE 6
+#define PIN_SIZE 4
 
 #define SERVO_PIN GPIO_NUM_4
 
@@ -82,7 +82,7 @@ volatile bool keyWasPressed = false;
 int lastKey;
 
 
-int pin[PIN_SIZE] = {1, 2, 3, 4, 5, 6};
+int pin[PIN_SIZE] = {1, 2, 3, 4};
 
 int enteredPin[PIN_SIZE];
 
@@ -139,7 +139,7 @@ void app_main(void) {
     mqtt_app_start();
 
     initLCD();
-    printToLCD();
+    writeEnterPinScreen();
 
     lockInit();
     
@@ -163,11 +163,14 @@ bool checkPin(int *entry, int size)
             printf("%d : %d \n", entry[i], pin[i]);
             if (entry[i] != pin[i])
             {
+                lockBolt();
                 return false;
             }
         }
+        unlockBolt();
         return true;
     }
+    lockBolt();
     return false;
 }
 
@@ -509,14 +512,7 @@ void mqtt_pin_to_int_array(uint32_t kLen, char *input)
     }
     printf("\n");
 
-    if (checkPin(enteredPin, kLen))
-    {
-        unlockBolt();
-    }
-    else
-    {
-        lockBolt();
-    }
+    checkPin(enteredPin, kLen)
 }
 
 /**
@@ -700,6 +696,10 @@ int Keypad_Read(void)
     }
 
     vTaskDelay(200 / portTICK_PERIOD_MS);
+    
+    if (num == 11)  {
+        num = 0;
+    }
     lastKey = num;
     return num;
 }
@@ -746,17 +746,25 @@ void Keypad_Task(void *arg)
 
         if (val != -1)
         {
-            enteredPin[i] = lastKey;
-            i++;
-            printf("Number = %d\n", lastKey);
-            val = -1;
-            if (i == PIN_SIZE)
-            {
-                //     printf(" Pin  code: ");
-                //     for(int j = 0; j < PIN_SIZE; j++)
-                //         printf("%d", enteredPin[j]);
-                i = 0;
-                //     printf("\n");
+            if (lastKey == 10)  {
+                //do asterisk functionality
+            } else if (lastKey == 12)   {
+                //do pound key functionality
+            } else  {
+                enteredPin[i] = lastKey;
+                writePinEntry(i,enteredPin[i]+'0');
+                i++;
+                printf("Number = %d\n", lastKey);
+                val = -1;
+                if (i == PIN_SIZE)
+                {
+                    //     printf(" Pin  code: ");
+                    //     for(int j = 0; j < PIN_SIZE; j++)
+                    //         printf("%d", enteredPin[j]);
+                    i = 0;
+                    //     printf("\n");
+                    checkPin(enteredPin,)
+                }
             }
         }
         vTaskDelay(10 / portTICK_PERIOD_MS);
