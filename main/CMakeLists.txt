@@ -1,4 +1,4 @@
-idf_component_register(SRCS "lock_main.c"
+idf_component_register(SRCS "lcd.c" "lock.c" "lock_main.c"
                        INCLUDE_DIRS "")
 
 # Set the target board type (replace "DEFAULT_TARGET_ESP32" with your specific board variant)

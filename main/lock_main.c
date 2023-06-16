@@ -103,6 +103,7 @@ void dataWrite(uint8_t var);
 void writeEnterPinScreen(void);
 void writePinEntry(uint8_t pinLocation, char pinNum);
 void printToLCD(uint8_t numStrings, char **strings, uint8_t startLine);
+bool checkPin(int *entry, int size);
 static void mqtt_event_handler(void *handler_args, esp_event_base_t base,
                                int32_t event_id, void *event_data);
 static void mqtt_app_start(void);
