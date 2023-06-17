@@ -7,12 +7,14 @@
  * @brief Initializes pins used by the LCD and runs initialization sequence
  */
 void initLCD(void);
+
 /**
- * @brief
+ * @brief Writes enter pin to the screen
  */
 void writeEnterPinScreen(void);
+
 /**
- * @brief
+ * @brief Writes the pin to the screen
  */
 void writePinEntry(uint8_t pinLocation, char pinNum);
 

@@ -9,6 +9,7 @@
 #include "lcd.h"
 #include "constants.h"
 
+/* --------------------------- Function Prototypes -------------------------- */
 void initSequenceLCD(void);
 void pulseEnable(void);
 void push_nibble(uint8_t var);
@@ -16,6 +17,9 @@ void push_byte(uint8_t var);
 void commandWrite(uint8_t var);
 void dataWrite(uint8_t var);
 void printToLCD(uint8_t numStrings, char **strings, uint8_t startLine);
+
+
+/* ---------------------------- Global Functions ---------------------------- */
 
 /**
  * @brief Initializes pins used by the LCD and runs initialization sequence
@@ -149,13 +153,6 @@ void dataWrite(uint8_t var)
     gpio_set_level(LCD_RS, 1);
     vTaskDelay(1 / portTICK_PERIOD_MS);
     push_byte(var);
-}
-
-/**
- * @brief Future method to be implemented, will include switch statement to change what is displayed on the LCD
- */
-void changeScreenStateLCD(void)
-{
 }
 
 /**

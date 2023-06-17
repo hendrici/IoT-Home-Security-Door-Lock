@@ -1,14 +1,13 @@
-#include "lock.h"
-#include "constants.h"
+/* --------------------------- Include Statements --------------------------- */
 #include "driver/ledc.h"
 #include "mqtt_client.h"
 
-
+#include "constants.h"
+#include "lock.h"
+/* ---------------------------- Global Variables ---------------------------- */
 extern esp_mqtt_client_handle_t client;
 
-/**
- * @brief Updates the duty cycle of the servo to lock the deadbolt
- */
+/* -------------------------- Function Definitions -------------------------- */
 void lockBolt(void)
 {
     ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, LEDC_DUTY_LOCKED);
@@ -16,9 +15,6 @@ void lockBolt(void)
     esp_mqtt_client_publish(client, LOCK_STATUS_TOPIC, "locked", 0, 1, 0);
 }
 
-/**
- * @brief Updates the duty cycle of the servo to unlock the deadbolt
- */
 void unlockBolt(void)
 {
     ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, LEDC_DUTY_UNLOCKED);
@@ -26,9 +22,6 @@ void unlockBolt(void)
     esp_mqtt_client_publish(client, LOCK_STATUS_TOPIC, "unlocked", 0, 1, 0);
 }
 
-/**
- * @brief Initializes a timer for PWM signal to the servo
- */
 void lockInit(void)
 {
     ledc_timer_config_t ledc_timer = {
