@@ -432,18 +432,20 @@ void Keypad_Task(void *arg)
                 //do asterisk functionality
                 lockBolt();
                 writeLockScreen();
-                for (int i = 0; i < 4; i++) {
-                    enteredPin[i] = -1;
+                for (int j = 0; j < PIN_SIZE; j++) {
+                    enteredPin[j] = -1;
                 }
+                i=0;
             } else if (lastKey == 12)   {
                 //do pound key functionality
                 if (checkPin(enteredPin,PIN_SIZE))  {
                     writeUnlockScreen();
                 } else  {
                     writeIncorrectPinScreen();
+                    i=0;
                 }
-                for (int i = 0; i < 4; i++) {
-                    enteredPin[i] = -1;
+                for (int j = 0; j < PIN_SIZE; j++) {
+                    enteredPin[j] = -1;
                 }
             } else  {
                 enteredPin[i] = lastKey;

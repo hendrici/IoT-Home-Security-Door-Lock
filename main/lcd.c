@@ -70,7 +70,7 @@ void initSequenceLCD(void)
     // commandWrite(0x8);
     // vTaskDelay(1/portTICK_PERIOD_MS);
 
-    // turns display and cursor ON, blinking
+    // turns display and cursor OFF
     commandWrite(0xC);
     vTaskDelay(1/portTICK_PERIOD_MS);
 
