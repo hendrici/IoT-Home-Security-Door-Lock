@@ -11,6 +11,9 @@ void push_byte(uint8_t var);
 void commandWrite(uint8_t var);
 void dataWrite(uint8_t var);
 void writeEnterPinScreen(void);
+void writeLockScreen(void);
+void writeUnlockScreen(void);
+void writeIncorrectPinScreen(void);
 void writePinEntry(uint8_t pinLocation, char pinNum);
 void printToLCD(uint8_t numStrings, char **strings, uint8_t startLine);
 

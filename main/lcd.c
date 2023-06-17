@@ -167,6 +167,35 @@ void writeLockScreen(bool isRemote) {
 }
 
 /**
+ * @brief Future method to be implemented, will include data to be written when in the unlocked state
+ */
+void writeUnlockScreen(void)    {
+    char *message[2] = {"Unlocked"};
+    printToLCD(1, message, 1);
+    vTaskDelay(2000/portTICK_PERIOD_MS);
+}
+
+/**
+ * @brief Future method to be implemented, will include data to be written when in the locked state
+ */
+void writeLockScreen(void) {
+    char *message[2] = {"Locked"};    
+    printToLCD(1, message, 1);
+    vTaskDelay(2000/portTICK_PERIOD_MS);
+    writeEnterPinScreen();
+}
+
+/**
+ * @brief
+ */
+void writeIncorrectPinScreen(void)  {
+    char *message[2] = {"Incorrect PIN"};    
+    printToLCD(1, message, 1);
+    vTaskDelay(2000/portTICK_PERIOD_MS);
+    writeEnterPinScreen();
+}
+
+/**
  * @brief
  */
 void writeEnterPinScreen(void)  {
