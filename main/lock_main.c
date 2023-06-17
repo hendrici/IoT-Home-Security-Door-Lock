@@ -430,8 +430,23 @@ void Keypad_Task(void *arg)
         {
             if (lastKey == 10)  {
                 //do asterisk functionality
+                lockBolt();
+                writeLockScreen();
+                for (int j = 0; j < PIN_SIZE; j++) {
+                    enteredPin[j] = -1;
+                }
+                i=0;
             } else if (lastKey == 12)   {
                 //do pound key functionality
+                if (checkPin(enteredPin,PIN_SIZE))  {
+                    writeUnlockScreen();
+                } else  {
+                    writeIncorrectPinScreen();
+                    i=0;
+                }
+                for (int j = 0; j < PIN_SIZE; j++) {
+                    enteredPin[j] = -1;
+                }
             } else  {
                 enteredPin[i] = lastKey;
                 writePinEntry(i,enteredPin[i]+'0');
@@ -440,12 +455,7 @@ void Keypad_Task(void *arg)
                 val = -1;
                 if (i == PIN_SIZE)
                 {
-                    //     printf(" Pin  code: ");
-                    //     for(int j = 0; j < PIN_SIZE; j++)
-                    //         printf("%d", enteredPin[j]);
                     i = 0;
-                    //     printf("\n");
-                    checkPin(enteredPin,PIN_SIZE);
                 }
             }
         }

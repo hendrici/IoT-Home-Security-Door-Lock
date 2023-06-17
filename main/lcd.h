@@ -9,12 +9,27 @@
 void initLCD(void);
 
 /**
- * @brief Writes enter pin to the screen
+ * @brief Writes "Enter Pin" to the screen
  */
 void writeEnterPinScreen(void);
 
 /**
- * @brief Writes the pin to the screen
+ * @brief Writes "Locked" to the screen
+ */
+void writeLockScreen(void);
+
+/**
+ * @brief Writes "Unlocked" to the screen
+ */
+void writeUnlockScreen(void);
+
+/**
+ * @brief Writes "Incorrect PIN" to the screen
+ */
+void writeIncorrectPinScreen(void);
+
+/**
+ * @brief Writes a pin character to the screen
  */
 void writePinEntry(uint8_t pinLocation, char pinNum);
 

@@ -16,7 +16,7 @@ void push_nibble(uint8_t var);
 void push_byte(uint8_t var);
 void commandWrite(uint8_t var);
 void dataWrite(uint8_t var);
-void printToLCD(uint8_t numStrings, char **strings, uint8_t startLine);
+void printToLCD(uint8_t numStrings, char **strings, uint8_t *xOffset, uint8_t yOffset);
 
 
 /* ---------------------------- Global Functions ---------------------------- */
@@ -70,7 +70,7 @@ void initSequenceLCD(void)
     // commandWrite(0x8);
     // vTaskDelay(1/portTICK_PERIOD_MS);
 
-    // turns display and cursor ON, blinking
+    // turns display and cursor OFF
     commandWrite(0xC);
     vTaskDelay(1/portTICK_PERIOD_MS);
 
@@ -157,19 +157,34 @@ void dataWrite(uint8_t var)
 
 /**
  * @brief Future method to be implemented, will include data to be written when in the unlocked state
- *
- * @param isRemote boolean value if system is unlocked through mobile app or not
  */
-void writeUnlockScreen(bool isRemote)
-{
+void writeUnlockScreen(void)    {
+    char *message[2] = {"Unlocked"};
+    uint8_t xOffset[5] = {0,4,0,0};
+    printToLCD(1, message, xOffset, 1);
+    vTaskDelay(2000/portTICK_PERIOD_MS);
 }
 
 /**
  * @brief Future method to be implemented, will include data to be written when in the locked state
- *
- * @param isRemote boolean value if system is locked through mobile app or not
  */
-void writeLockScreen(bool isRemote) {
+void writeLockScreen(void) {
+    char *message[2] = {"Locked"};
+    uint8_t xOffset[5] = {0,5,0,0};    
+    printToLCD(1, message, xOffset, 1);
+    vTaskDelay(2000/portTICK_PERIOD_MS);
+    writeEnterPinScreen();
+}
+
+/**
+ * @brief
+ */
+void writeIncorrectPinScreen(void)  {
+    char *message[2] = {"Incorrect PIN"};    
+    uint8_t xOffset[5] = {0,1,0,0};    
+    printToLCD(1, message, xOffset, 1);
+    vTaskDelay(2000/portTICK_PERIOD_MS);
+    writeEnterPinScreen();
 }
 
 /**
@@ -177,7 +192,8 @@ void writeLockScreen(bool isRemote) {
  */
 void writeEnterPinScreen(void)  {
     char *message[3] = {"Enter PIN:","****"};
-    printToLCD(2, message, 2);
+    uint8_t xOffset[5] = {0,3,6,0};    
+    printToLCD(2, message, xOffset, 1);
 }
 
 
@@ -205,24 +221,24 @@ void writePinEntry(uint8_t pinLocation, char pinNum) {
  * @param
  * @param
  */
-void printToLCD(uint8_t numStrings, char **strings, uint8_t startLine) {
-    uint8_t count = startLine;
+void printToLCD(uint8_t numStrings, char **strings, uint8_t *xOffset, uint8_t yOffset) {
+    uint8_t count = yOffset;
     commandWrite(1);
     vTaskDelay(20 / portTICK_PERIOD_MS);
 
     for (int i = 0 ; i < numStrings ; i++) {
         switch (count) {
+            case 0 :
+                commandWrite(0x80 + xOffset[0]);        // first line
+                break;
             case 1 :
-                commandWrite(0x85);        // first line
+                commandWrite(0xC0 + xOffset[1]);        // second line
                 break;
             case 2 :
-                commandWrite(0xC3);        // second line
+                commandWrite(0x90 + xOffset[2]);        // third line
                 break;
             case 3 :
-                commandWrite(0x96);        // third line
-                break;
-            case 4 :
-                commandWrite(0xD5);        // fourth line
+                commandWrite(0xD0 + xOffset[3]);        // fourth line
                 break;
         }
 
