@@ -15,6 +15,6 @@ void writeLockScreen(void);
 void writeUnlockScreen(void);
 void writeIncorrectPinScreen(void);
 void writePinEntry(uint8_t pinLocation, char pinNum);
-void printToLCD(uint8_t numStrings, char **strings, uint8_t startLine);
+void printToLCD(uint8_t numStrings, char **strings, uint8_t *xOffset, uint8_t yOffset);
 
 #endif 

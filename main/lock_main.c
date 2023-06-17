@@ -453,11 +453,7 @@ void Keypad_Task(void *arg)
                 val = -1;
                 if (i == PIN_SIZE)
                 {
-                    //     printf(" Pin  code: ");
-                    //     for(int j = 0; j < PIN_SIZE; j++)
-                    //         printf("%d", enteredPin[j]);
                     i = 0;
-                    //     printf("\n");
                 }
             }
         }

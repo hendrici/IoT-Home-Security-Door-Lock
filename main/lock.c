@@ -49,4 +49,6 @@ void lockInit(void)
         .duty = 0, // Set duty to 0%
         .hpoint = 0};
     ESP_ERROR_CHECK(ledc_channel_config(&ledc_channel));
+
+    lockBolt();
 }
