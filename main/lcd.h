@@ -3,15 +3,17 @@
 
 #include <stdint.h>
 
+/**
+ * @brief Initializes pins used by the LCD and runs initialization sequence
+ */
 void initLCD(void);
-void initSequenceLCD(void);
-void pulseEnable(void);
-void push_nibble(uint8_t var);
-void push_byte(uint8_t var);
-void commandWrite(uint8_t var);
-void dataWrite(uint8_t var);
+/**
+ * @brief
+ */
 void writeEnterPinScreen(void);
+/**
+ * @brief
+ */
 void writePinEntry(uint8_t pinLocation, char pinNum);
-void printToLCD(uint8_t numStrings, char **strings, uint8_t startLine);
 
 #endif 
