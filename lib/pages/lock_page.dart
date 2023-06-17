@@ -8,6 +8,7 @@ import 'package:lock_app/providers/mqtt_provider.dart';
 const lockStatusTopic = "brendan/lockStatus/";
 const pinOutputTopic = "brendan/pinEntry/";
 
+///A lock page widget that acts as the main screen of the app
 class LockPage extends HookConsumerWidget {
   const LockPage({Key? key}) : super(key: key);
 

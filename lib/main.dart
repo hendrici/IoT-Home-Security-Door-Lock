@@ -9,6 +9,7 @@ void main() {
   );
 }
 
+///The main app of the app. Builds the main page and all of the providers
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
