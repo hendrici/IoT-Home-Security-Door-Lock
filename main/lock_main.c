@@ -56,13 +56,13 @@
 
 #define ROWS 4
 #define COLS 3
-#define ROW_1_PIN GPIO_NUM_25
-#define ROW_2_PIN GPIO_NUM_26
-#define ROW_3_PIN GPIO_NUM_27
-#define ROW_4_PIN GPIO_NUM_18
-#define COL_1_PIN GPIO_NUM_21
+#define ROW_1_PIN GPIO_NUM_18
+#define ROW_2_PIN GPIO_NUM_27
+#define ROW_3_PIN GPIO_NUM_26
+#define ROW_4_PIN GPIO_NUM_25
+#define COL_1_PIN GPIO_NUM_23
 #define COL_2_PIN GPIO_NUM_22
-#define COL_3_PIN GPIO_NUM_23
+#define COL_3_PIN GPIO_NUM_21
 
 int colPins[COLS] = {COL_1_PIN, COL_2_PIN, COL_3_PIN};
 
@@ -100,6 +100,9 @@ void push_nibble(uint8_t var);
 void push_byte(uint8_t var);
 void commandWrite(uint8_t var);
 void dataWrite(uint8_t var);
+void writeLockScreen(void);
+void writeUnlockScreen(void);
+void writeIncorrectPinScreen(void);
 void writeEnterPinScreen(void);
 void writePinEntry(uint8_t pinLocation, char pinNum);
 void printToLCD(uint8_t numStrings, char **strings, uint8_t startLine);
@@ -400,27 +403,32 @@ void dataWrite(uint8_t var)
 }
 
 /**
- * @brief Future method to be implemented, will include switch statement to change what is displayed on the LCD
- */
-void changeScreenStateLCD(void)
-{
-}
-
-/**
  * @brief Future method to be implemented, will include data to be written when in the unlocked state
- *
- * @param isRemote boolean value if system is unlocked through mobile app or not
  */
-void writeUnlockScreen(bool isRemote)
-{
+void writeUnlockScreen(void)    {
+    char *message[2] = {"Unlocked"};
+    printToLCD(1, message, 1);
+    vTaskDelay(2000/portTICK_PERIOD_MS);
 }
 
 /**
  * @brief Future method to be implemented, will include data to be written when in the locked state
- *
- * @param isRemote boolean value if system is locked through mobile app or not
  */
-void writeLockScreen(bool isRemote) {
+void writeLockScreen(void) {
+    char *message[2] = {"Locked"};    
+    printToLCD(1, message, 1);
+    vTaskDelay(2000/portTICK_PERIOD_MS);
+    writeEnterPinScreen();
+}
+
+/**
+ * @brief
+ */
+void writeIncorrectPinScreen(void)  {
+    char *message[2] = {"Incorrect PIN"};    
+    printToLCD(1, message, 1);
+    vTaskDelay(2000/portTICK_PERIOD_MS);
+    writeEnterPinScreen();
 }
 
 /**
@@ -748,8 +756,21 @@ void Keypad_Task(void *arg)
         {
             if (lastKey == 10)  {
                 //do asterisk functionality
+                lockBolt();
+                writeLockScreen();
+                for (int i = 0; i < 4; i++) {
+                    enteredPin[i] = -1;
+                }
             } else if (lastKey == 12)   {
                 //do pound key functionality
+                if (checkPin(enteredPin,PIN_SIZE))  {
+                    writeUnlockScreen();
+                } else  {
+                    writeIncorrectPinScreen();
+                }
+                for (int i = 0; i < 4; i++) {
+                    enteredPin[i] = -1;
+                }
             } else  {
                 enteredPin[i] = lastKey;
                 writePinEntry(i,enteredPin[i]+'0');
@@ -763,7 +784,6 @@ void Keypad_Task(void *arg)
                     //         printf("%d", enteredPin[j]);
                     i = 0;
                     //     printf("\n");
-                    checkPin(enteredPin,PIN_SIZE);
                 }
             }
         }
