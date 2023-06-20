@@ -15,7 +15,6 @@
 #include "esp_flash.h"
 
 
-
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "freertos/semphr.h"
@@ -28,9 +27,6 @@
 #include "esp_log.h"
 #include "mqtt_client.h"
 
-#include "constants.h"
-#include "lock.h"
-#include "lcd.h"
 #include "constants.h"
 #include "lock.h"
 #include "lcd.h"
@@ -51,15 +47,7 @@ int lastKey;
 int colPins[COLS] = {COL_1_PIN, COL_2_PIN, COL_3_PIN};
 
 int pin[PIN_SIZE] = {1, 2, 3, 4};
-// Variables for tracking key press state
-volatile bool keyWasPressed = false;
-int lastKey;
 
-int colPins[COLS] = {COL_1_PIN, COL_2_PIN, COL_3_PIN};
-
-int pin[PIN_SIZE] = {1, 2, 3, 4};
-
-int enteredPin[PIN_SIZE];
 int enteredPin[PIN_SIZE];
 
 /* --------------------------- Function Prototypes -------------------------- */
@@ -67,14 +55,9 @@ void ledBlink(void *pvParams);
 static void logErrorIfNonzero(const char *message, int error_code);
 void printDeviceInfo(void);
 bool checkPin(int *entry, int size);
-bool checkPin(int *entry, int size);
 static void mqtt_event_handler(void *handler_args, esp_event_base_t base,
                                int32_t event_id, void *event_data);
-                               int32_t event_id, void *event_data);
 static void mqtt_app_start(void);
-void initKeypad(void);
-int Keypad_Read(void);
-void Keypad_Task(void *arg);
 void initKeypad(void);
 int Keypad_Read(void);
 void Keypad_Task(void *arg);
@@ -110,12 +93,7 @@ void app_main(void) {
     initLCD();
     writeEnterPinScreen();
 
-    writeEnterPinScreen();
-
     lockInit();
-    
-    initKeypad();
-    xTaskCreate(Keypad_Task, "Keypad_Task", 5096, NULL, 10, NULL);
     
     initKeypad();
     xTaskCreate(Keypad_Task, "Keypad_Task", 5096, NULL, 10, NULL);
@@ -123,7 +101,6 @@ void app_main(void) {
 
 /**
  * @brief Checks the inputted PIN code, returns if correct or not
- *
  *
  * @param entry PIN code in form of integer array
  * @param size number of characters within PIN code
@@ -135,16 +112,7 @@ bool checkPin(int *entry, int size)
     {
         for (int i = 0; i < PIN_SIZE; i++)
         {
-bool checkPin(int *entry, int size)
-{
-    if (size == PIN_SIZE)
-    {
-        for (int i = 0; i < PIN_SIZE; i++)
-        {
             printf("%d : %d \n", entry[i], pin[i]);
-            if (entry[i] != pin[i])
-            {
-                lockBolt();
             if (entry[i] != pin[i])
             {
                 lockBolt();
@@ -152,10 +120,8 @@ bool checkPin(int *entry, int size)
             }
         }
         unlockBolt();
-        unlockBolt();
         return true;
     }
-    lockBolt();
     lockBolt();
     return false;
 }
@@ -164,14 +130,9 @@ bool checkPin(int *entry, int size)
  * @brief A function to log the error that the mqtt callback had if an
  *        unexpected response is returned
  *
- *
  * @param message the message of what error it is
  * @param error_code the error code of the mqtt error
  */
-static void logErrorIfNonzero(const char *message, int error_code)
-{
-    if (error_code != 0)
-    {
 static void logErrorIfNonzero(const char *message, int error_code)
 {
     if (error_code != 0)
@@ -182,8 +143,6 @@ static void logErrorIfNonzero(const char *message, int error_code)
 /**
  * @brief Prints the device information upon startup
  */
-void printDeviceInfo(void)
-{
 void printDeviceInfo(void)
 {
     /* Print chip information */
@@ -201,18 +160,14 @@ void printDeviceInfo(void)
     printf("silicon revision v%d.%d, ", major_rev, minor_rev);
     if (esp_flash_get_size(NULL, &flash_size) != ESP_OK)
     {
-    if (esp_flash_get_size(NULL, &flash_size) != ESP_OK)
-    {
         printf("Get flash size failed");
         return;
     }
 
     printf("%" PRIu32 "MB %s flash\n", flash_size / (uint32_t)(1024 * 1024),
            (chip_info.features & CHIP_FEATURE_EMB_FLASH) ? "embedded" : "external");
-           (chip_info.features & CHIP_FEATURE_EMB_FLASH) ? "embedded" : "external");
 
     printf("Minimum free heap size: %" PRIu32 " bytes\n",
-           esp_get_minimum_free_heap_size());
            esp_get_minimum_free_heap_size());
 }
 
@@ -221,32 +176,24 @@ void printDeviceInfo(void)
  *        This number is then compared to the stored pin and the deadbolt
  *        is locked/unlocked accordingly
  *
- *
  * @param kLen The length of the string
  * @param input A string array of the input pin written as characters and converted
  *              to integers
  */
 void mqtt_pin_to_int_array(uint32_t kLen, char *input)
 {
-void mqtt_pin_to_int_array(uint32_t kLen, char *input)
-{
     int enteredPin[kLen];
     uint32_t i = 0;
-    for (i = 0; i < kLen; i++)
-    {
     for (i = 0; i < kLen; i++)
     {
         enteredPin[i] = input[i] - '0';
     }
     for (i = 0; i < kLen; i++)
     {
-    for (i = 0; i < kLen; i++)
-    {
         printf("%d ", enteredPin[i]);
     }
     printf("\n");
 
-    checkPin(enteredPin, kLen);
     checkPin(enteredPin, kLen);
 }
 
@@ -265,18 +212,11 @@ void mqtt_pin_to_int_array(uint32_t kLen, char *input)
 static void mqtt_event_handler(void *handler_args, esp_event_base_t base,
                                int32_t event_id, void *event_data)
 {
-                               int32_t event_id, void *event_data)
-{
     ESP_LOGD(TAG,
-             "Event dispatched from event loop base=%s, event_id=%" PRIi32 "",
-             base, event_id);
              "Event dispatched from event loop base=%s, event_id=%" PRIi32 "",
              base, event_id);
 
     esp_mqtt_event_handle_t event = event_data;
-
-    switch ((esp_mqtt_event_id_t)event_id)
-    {
 
     switch ((esp_mqtt_event_id_t)event_id)
     {
@@ -291,18 +231,15 @@ static void mqtt_event_handler(void *handler_args, esp_event_base_t base,
     case MQTT_EVENT_SUBSCRIBED:
         ESP_LOGI(TAG, "MQTT_EVENT_SUBSCRIBED, msg_id=%d",
                  event->msg_id);
-                 event->msg_id);
         break;
 
     case MQTT_EVENT_UNSUBSCRIBED:
         ESP_LOGI(TAG, "MQTT_EVENT_UNSUBSCRIBED, msg_id=%d",
                  event->msg_id);
-                 event->msg_id);
         break;
 
     case MQTT_EVENT_PUBLISHED:
         ESP_LOGI(TAG, "MQTT_EVENT_PUBLISHED, msg_id=%d",
-                 event->msg_id);
                  event->msg_id);
         break;
 
@@ -317,19 +254,13 @@ static void mqtt_event_handler(void *handler_args, esp_event_base_t base,
         ESP_LOGI(TAG, "MQTT_EVENT_ERROR");
         if (event->error_handle->error_type == MQTT_ERROR_TYPE_TCP_TRANSPORT)
         {
-        if (event->error_handle->error_type == MQTT_ERROR_TYPE_TCP_TRANSPORT)
-        {
             logErrorIfNonzero("reported from esp-tls",
-                              event->error_handle->esp_tls_last_esp_err);
                               event->error_handle->esp_tls_last_esp_err);
             logErrorIfNonzero("reported from tls stack",
                               event->error_handle->esp_tls_stack_err);
-                              event->error_handle->esp_tls_stack_err);
             logErrorIfNonzero("captured as transport's socket errno",
                               event->error_handle->esp_transport_sock_errno);
-                              event->error_handle->esp_transport_sock_errno);
             ESP_LOGI(TAG, "Last errno string (%s)",
-                     strerror(event->error_handle->esp_transport_sock_errno));
                      strerror(event->error_handle->esp_transport_sock_errno));
         }
         break;
@@ -346,23 +277,14 @@ static void mqtt_event_handler(void *handler_args, esp_event_base_t base,
  */
 static void mqtt_app_start(void)
 {
-static void mqtt_app_start(void)
-{
     client = esp_mqtt_client_init(&mqtt_cfg);
     esp_mqtt_client_register_event(client, ESP_EVENT_ANY_ID,
-                                   mqtt_event_handler, NULL);
                                    mqtt_event_handler, NULL);
     esp_mqtt_client_start(client);
     esp_mqtt_client_publish(client, LOCK_STATUS_TOPIC, "locked", 0, 0, 0);
     esp_mqtt_client_subscribe(client, PIN_OUTPUT_TOPIC, 1);
 }
 
-/** 
- * @brief Reads the status of the keypad by driving each column low
- * individually and reading each row pin. If one of the row pins is low,
- * it is known that the corresponding key is pressed. The function waits 
- * for the key to be released.
-*/
 int Keypad_Read(void)
 {
 
@@ -463,11 +385,7 @@ int Keypad_Read(void)
     lastKey = num;
     return num;
 }
-/**
- * @brief Initilizies the GPIO peripherals for the keypad. Pullups
- * are attached to the rows, both rows and colomns are set to inputs,
- * and everything is set to drive high.
-*/
+
 void initKeypad()
 {
     gpio_set_direction(ROW_1_PIN, GPIO_MODE_INPUT);
@@ -497,10 +415,7 @@ void initKeypad()
     vTaskDelay(50 / portTICK_PERIOD_MS);
     gpio_set_level(COL_3_PIN, 1);
 }
-/**
- * @brief Thread used to poll the keypad. The logic for storing pin is in this 
- * task handler.
-*/
+
 void Keypad_Task(void *arg)
 {
 
