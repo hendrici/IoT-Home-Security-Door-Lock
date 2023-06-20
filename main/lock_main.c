@@ -285,12 +285,6 @@ static void mqtt_app_start(void)
     esp_mqtt_client_subscribe(client, PIN_OUTPUT_TOPIC, 1);
 }
 
-/** 
- * @brief Reads the status of the keypad by driving each column low
- * individually and reading each row pin. If one of the row pins is low,
- * it is known that the corresponding key is pressed. The function waits 
- * for the key to be released.
-*/
 int Keypad_Read(void)
 {
 
@@ -391,11 +385,7 @@ int Keypad_Read(void)
     lastKey = num;
     return num;
 }
-/**
- * @brief Initilizies the GPIO peripherals for the keypad. Pullups
- * are attached to the rows, both rows and colomns are set to inputs,
- * and everything is set to drive high.
-*/
+
 void initKeypad()
 {
     gpio_set_direction(ROW_1_PIN, GPIO_MODE_INPUT);
@@ -425,10 +415,7 @@ void initKeypad()
     vTaskDelay(50 / portTICK_PERIOD_MS);
     gpio_set_level(COL_3_PIN, 1);
 }
-/**
- * @brief Thread used to poll the keypad. The logic for storing pin is in this 
- * task handler.
-*/
+
 void Keypad_Task(void *arg)
 {
 
