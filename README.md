@@ -1,7 +1,7 @@
 # CIS 350 Final Project: Security Lock System
 
 ## Description
-Safe and secure home entry without the hassle of keys requires the development of a deadbolt whose locking and unlocking is controlled via PIN entry. The convenience of personalized PIN numbers for all users and the possibility of control through a mobile app would make home security easy.
+Safe and secure home entry without the hassle of keys requires the development of a deadbolt whose locking and unlocking is controlled via PIN entry. The possibility of control through a mobile app would make home security easy.
 
 The objective of the product is to provide convenience without sacrificing security. The scope of the proposed solution includes a deadbolt control mechanism, method of confirming user identity via personal identification number, and possible development of wireless connectivity to provide remote access to the lock. The code relating to the mobile application development of the project can be viewed [here](https://github.com/CIS-350/lock_app).
 
@@ -9,7 +9,7 @@ This project is an internet of things (IoT) deadbolt. Containing a LCD display, 
 
 
 ## Current State
-https://github.com/CIS-350/lock/assets/107201610/6131cbc2-6563-4f6d-a5b9-eebca7f5f955
+[![Final Release Demo](https://img.youtube.com/vi/uscTtfn3diE/0.jpg)](https://www.youtube.com/watch?v=uscTtfn3diE)
 
 
 ## System Hardware
@@ -21,7 +21,7 @@ Hardware used:
 
 
 ## IDE Setup for Development
-1. Follow https://docs.espressif.com/projects/esp-idf/en/latest/esp32/get-started/windows-setup.html when installing the idf tools install the 5.0.2 offline installer.
+1. Follow the instructions through [this link](https://docs.espressif.com/projects/esp-idf/en/latest/esp32/get-started/windows-setup.html). When installing the idf tools, install the 5.0.2 offline installer.
 
 2. Add the espressif idf extension to VScode.
 
