@@ -9,6 +9,8 @@ This project is an internet of things (IoT) deadbolt. Containing a LCD display, 
 
 
 ## Current State
+(Click picture to watch demonstration video on YouTube)
+
 [![Final Release Demo](https://img.youtube.com/vi/uscTtfn3diE/0.jpg)](https://www.youtube.com/watch?v=uscTtfn3diE)
 
 
