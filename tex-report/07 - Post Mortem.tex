@@ -1,0 +1,35 @@
+\chapter{Post Mortem}
+% [Include a reflection on how well the project has gone thus far]
+This project has gone well so far. We are currently on schedule to complete the project before the due date and have a good amount of time for documentation. Currently, we have an MQTT connection, an LCD that we can write to, and a servo that controls the lock and unlock status of the deadbolt. The remaining features we need to implement over the next three weeks are keypad functionality and better LCD screens while the keypad is being used.
+\section{Earned Value}
+% [Include the earned value calculations for your current status and any explanation of over/under runs]
+
+\section{Variances}
+% [Include any additional variance (time, coverage, functionality, …) explanations necessary]
+% Keypad functionality
+% storing multiple pins
+With this first release, the keypad functionality has not been implemented yet. Additionally, the system does not have a method to store multiple PIN codes. The LCD is also not updating as the user changes the state of the device.
+
+\section{Lessons Learned}
+% [Include lessons learned]
+In the first few weeks of the project development and implementation, the following have been the lessons learned: 
+
+\begin{enumerate}
+    \item $\textbf{Project Feasibility:}$ At the beginning of the course everyone was ambitious to develop an over-the-top project. However, due to the shortened semester, the project selected was evaluated to be manageable to complete within the given time frame. 
+        \begin{itemize}
+            \item \textbf{Lesson Learned:} Identify a project that is realizable within the specified time frame. 
+        \end{itemize}
+    \item $\textbf{Assignment Delegation:}$ There are assignments that no one wants to complete or assignments no one has experience 
+        \begin{itemize}
+            \item \textbf{Lesson Learned:} The team members of this project are willing to lean into the unknown and learn new skills to complete the necessary assignments with high accuracy and precision. 
+        \end{itemize}
+    \item $\textbf{Project Management:}$ There is more to a project than programming and wiring hardware. 
+        \begin{itemize}
+            \item \textbf{Lesson Learned:} Proper planning and documentation is essential to a successful project. 
+        \end{itemize}
+    \item $\textbf{Hardware Design Issues:}$ As computer engineering students, the project has an embedded system requirement. To meet this requirement the ESP32 microcontroller was selected. As the development continued, a few issues were found with the board. Specifically that one of the ground pins was not functioning as expected.
+        \begin{itemize}
+            \item \textbf{Lesson Learned:} Test hardware before implementations. 
+        \end{itemize}
+
+\end{enumerate}

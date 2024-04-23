@@ -1,0 +1,134 @@
+% Note: This template was adapted by a report template created by Kartik Singhal under theCreative Commons Attribution 4.0 International License. You can see their template at the repository linked [here](https://github.com/googol-lab/latex-project-report-template)
+% 
+% View README.md for further information
+
+\documentclass[12pt]{report}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage[pdftex]{graphicx} %for embedding images
+\usepackage{url} %for proper url entries
+\usepackage{appendix} %for appendix functionality
+\usepackage[bookmarks, colorlinks=false, pdfborder={0 0 0}, pdftitle={}, pdfauthor={}, pdfsubject={<subject here>}, pdfkeywords={<keywords here>}]{hyperref} %for creating links in the pdf version and other additional pdf attributes, no effect on the printed document
+\hypersetup{
+    colorlinks=true,
+    linkcolor=black,
+    urlcolor=blue,
+}
+
+\usepackage{xcolor}
+\usepackage{soul}
+\usepackage{pdflscape} % Allow to change a page to landscape 
+
+% BEGIN C LISTING SUPPORT
+\usepackage{xcolor}
+\usepackage{listings}
+
+\definecolor{mGreen}{rgb}{0,0.6,0}
+\definecolor{mBlue}{rgb}{0,0,255}
+\definecolor{mGray}{rgb}{0.5,0.5,0.5}
+\definecolor{mPurple}{rgb}{0.58,0,0.82}
+\definecolor{MyDarkGreen}{rgb}{0.0,0.4,0.0}
+\definecolor{backgroundColour}{rgb}{0.95,0.95,0.92}
+
+
+\lstdefinestyle{CStyle}{
+    % backgroundcolor=\color{backgroundColour},   
+    commentstyle=\color{mGreen},
+    keywordstyle=\color{magenta},
+    numberstyle=\tiny\color{mGray},
+    stringstyle=\color{mPurple},
+    basicstyle=\footnotesize\ttfamily,
+    breakatwhitespace=false,         
+    breaklines=true,                 
+    captionpos=b,                    
+    keepspaces=true,                 
+    numbers=left,                    
+    numbersep=5pt,                  
+    showspaces=false,                
+    showstringspaces=false,
+    showtabs=false,                  
+    tabsize=2,
+    language=C,
+    postbreak=\mbox{\textcolor{red}{$\hookrightarrow$}\space},
+}
+
+\usepackage{geometry} % Widen margins for code listings
+\newgeometry{left = 1in, right = 1in, top = 1in, bottom = 1in}
+% END C LISTING SUPPORT
+
+\usepackage{titlesec}
+\titleformat{\chapter}[block]
+  {\normalfont\huge\bfseries}{\thechapter}{20pt}{\Huge} % Formats chapters so number and chapter name are inline, comment out to revert to default  
+
+% MATLAB 
+% LaTeX settings for MATLAB code listings
+% based on Ted Pavlic's settings in http://links.tedpavlic.com/ascii/homework_new_tex.ascii
+\usepackage{listings}
+% \usepackage[usenames,dvipsnames]{color}
+
+% This is the color used for MATLAB comments below
+\definecolor{MyDarkGreen}{rgb}{0.0,0.4,0.0}
+
+% For faster processing, load Matlab syntax for listings
+\lstloadlanguages{Matlab}%
+\lstset{language=Matlab,                        % Use MATLAB
+        frame=single,                           % Single frame around code
+        basicstyle=\small\ttfamily,             % Use small true type font
+        keywordstyle=[1]\color{mBlue}\bfseries,        % MATLAB functions bold and blue
+        keywordstyle=[2]\color{mPurple},         % MATLAB function arguments purple
+        keywordstyle=[3]\color{mBlue}\underbar,  % User functions underlined and blue
+        identifierstyle=,                       % Nothing special about identifiers
+                                                % Comments small dark green courier
+        commentstyle=\usefont{T1}{pcr}{m}{sl}\color{MyDarkGreen}\small,
+        stringstyle=\color{mPurple},             % Strings are purple
+        showstringspaces=false,                 % Don't put marks in string spaces
+        tabsize=5,                              % 5 spaces per tab
+        %
+        %%% Put standard MATLAB functions not included in the default
+        %%% language here
+        morekeywords={xlim,ylim,var,alpha,factorial,poissrnd,normpdf,normcdf},
+        %
+        %%% Put MATLAB function parameters here
+        morekeywords=[2]{on, off, interp},
+        %
+        %%% Put user defined functions here
+        morekeywords=[3]{FindESS, homework_example},
+        %
+        morecomment=[l][\color{mBlue}]{...},     % Line continuation (...) like blue comment
+        numbers=left,                           % Line numbers on left
+        firstnumber=1,                          % Line numbers start with line 1
+        numberstyle=\tiny\color{mBlue},          % Line numbers are blue
+        stepnumber=1                            % Line numbers go in steps of 1
+        }
+
+% Includes a MATLAB script.
+% The first parameter is the label, which also is the name of the script
+%   without the .m.
+% The second parameter is the optional caption.
+\newcommand{\matlabscript}[2]
+  {\begin{itemize}\item[]\lstinputlisting[caption=#2,label=#1]{./MATLAB/#1.m}\end{itemize}}
+
+% End MATLAB
+
+
+\begin{document}
+\renewcommand\bibname{References} %Renames "Bibliography" to "References" on ref page
+
+%include other pages
+\input{./00 - Title.tex}
+\pagenumbering{roman} %numbering before main content starts
+\listoffigures
+
+\newpage
+\pagenumbering{arabic} %reset numbering to normal for the main content
+\input{./01 - Project Information.tex} 
+\input{./02 - Project Plan.tex}
+\input{./03 - Requirements and Specification.tex}
+\input{./04 - Design.tex}
+\input{./05 - Development.tex}
+\input{./06 - Verification.tex}
+\input{./07 - Post Mortem.tex}
+\input{./08 - References.tex}
+\input{./09 - Appendix.tex}
+
+\end{document}
